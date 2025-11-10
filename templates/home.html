@@ -3,52 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>LLM Comparator - Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">
 </head>
+
 <body>
-    <div class="container">
-        <h1>LLM Comparator</h1>
-        <p class="subtitle">Enter a prompt and select up to 4 LLMs to compare:</p>
-
-        <form id="promptForm">
-            <div class="form-group">
-                <label for="prompt">Prompt:</label>
-                <input type="text" id="prompt" name="prompt" placeholder="Type your prompt here">
-            </div>
-
-            <div class="form-group">
-                <label for="llms">Choose LLMs:</label>
-                <select id="llms" name="llms" multiple>
-                    <option value="gpt4">GPT-4</option>
-                    <option value="gpt35">GPT-3.5</option>
-                    <option value="bard">Bard</option>
-                    <option value="claude">Claude</option>
-                    <option value="llama2">LLaMA 2</option>
-                    <option value="mistral">Mistral</option>
-                    <option value="ernie">Ernie Bot</option>
-                    <option value="cerebras">Cerebras-GPT</option>
-                    <option value="jurassic">Jurassic-2</option>
-                    <option value="opt">OPT</option>
-                </select>
-                <p class="hint">You can select up to 4 LLMs.</p>
-            </div>
-
-            <button type="submit" class="btn">Compare</button>
-        </form>
-
-        <div id="results"></div>
+    <div id="llmContainer" class="llm-container">
+        <!-- Dynamically populated by TypeScript -->
     </div>
 
-    <script>
-        // Limit selection to max 4
-        const llmsSelect = document.getElementById('llms');
-        llmsSelect.addEventListener('change', () => {
-            const selectedOptions = Array.from(llmsSelect.selectedOptions);
-            if (selectedOptions.length > 4) {
-                selectedOptions[selectedOptions.length - 1].selected = false;
-                alert("You can select up to 4 LLMs only.");
-            }
-        });
-    </script>
+    <button id="addColumnBtn" class="add-column-btn">+</button>
+
+    <div class="prompt-input-container">
+        <input 
+            type="text" 
+            id="promptInput"
+            placeholder="Type your prompt here..."
+        >
+        <button id="submitPromptBtn" class="submit-btn">Submit</button>
+    </div>
+
+    <!-- Load compiled TypeScript -->
+    <script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
 </body>
 </html>

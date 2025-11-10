@@ -1,0 +1,71 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.llm-container {
+    flex: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px;
+}
+
+.llm-column {
+    flex: 1 0 25%;
+    border: 1px solid #444;
+    margin: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    background: #f8f8f8;
+    position: relative;
+    min-width: 250px;
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-column-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.prompt-input-container {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.prompt-input-container input {
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.submit-btn {
+    margin-left: 10px;
+    padding: 8px 16px;
+}
+
+.add-column-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 32px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+}

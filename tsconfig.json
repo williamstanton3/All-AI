@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "outDir": "./static/scripts",
+    "rootDir": "./static/scripts",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "allowJs": true
+  },
+  "include": ["static/scripts/*.ts"],
+  "exclude": ["static/scripts/*.js"]
+}
