@@ -1,71 +1,134 @@
+/* ===== PAGE LAYOUT ===== */
 body {
     margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+    color: #f0f0f0;
 }
 
 .llm-container {
-    flex: 1;
     display: flex;
-    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
     overflow-x: auto;
-    padding: 10px;
 }
 
+/* Plus button container */
+#addColumnContainer {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    /* * THE KEY CHANGE: 
+     * This pushes the container as far right as possible within the flex container, 
+     * after all the other columns.
+     */
+    margin-left: auto; 
+    
+    /* Ensure it doesn't shrink when space is tight */
+    flex-shrink: 0; 
+}
+
+/* Plus button styling */
+#addColumnBtn {
+    padding: 10px 16px;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #444;
+    color: #f0f0f0;
+    transition: background 0.2s;
+}
+
+#addColumnBtn:hover {
+    background-color: #666;
+}
+
+/* Dropdown styling */
+#modelDropdown {
+    display: none; /* hidden initially */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #333;
+    color: #f0f0f0;
+    border-radius: 6px;
+    min-width: 140px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+#modelDropdown .dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#modelDropdown .dropdown-item:hover {
+    background-color: #555;
+}
+
+/* ===== LLM COLUMNS ===== */
 .llm-column {
-    flex: 1 0 25%;
-    border: 1px solid #444;
-    margin: 8px;
-    padding: 10px;
+    width: 300px;
+    background-color: rgba(50, 50, 50, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    background: #f8f8f8;
-    position: relative;
-    min-width: 250px;
+    padding: 20px;
 }
 
 .column-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.delete-column-btn {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 20px;
+.llm-output {
+    background-color: #333;
+    border-radius: 6px;
+    padding: 10px;
+    min-height: 600px;
+    white-space: pre-wrap;
+    overflow-y: auto;
 }
 
+/* ===== PROMPT INPUT AREA ===== */
 .prompt-input-container {
     display: flex;
-    padding: 10px;
-    border-top: 1px solid #ccc;
+    gap: 10px;
+    padding: 20px;
 }
 
-.prompt-input-container input {
+.prompt-input-container input[type="text"] {
     flex: 1;
-    padding: 8px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    background-color: #333;
+    color: #f0f0f0;
     font-size: 16px;
 }
 
-.submit-btn {
-    margin-left: 10px;
-    padding: 8px 16px;
+.prompt-input-container input[type="text"]:focus {
+    background-color: #444;
 }
 
-.add-column-btn {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 32px;
-    background: #007bff;
-    color: white;
+.submit-btn {
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
-    padding: 5px 12px;
+    border-radius: 6px;
+    background-color: #666;
+    color: #f0f0f0;
     cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #888;
 }

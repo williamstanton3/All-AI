@@ -8,10 +8,17 @@
 
 <body>
     <div id="llmContainer" class="llm-container">
-        <!-- Dynamically populated by TypeScript -->
-    </div>
 
-    <button id="addColumnBtn" class="add-column-btn">+</button>
+        <!-- Plus button on the far right -->
+        <div id="addColumnContainer">
+            <button id="addColumnBtn" type="button">＋</button>
+            <div id="modelDropdown" class="dropdown">
+                <div class="dropdown-item">CHATGPT</div>
+                <div class="dropdown-item">GROK</div>
+                <div class="dropdown-item">GEMINI</div>
+            </div>
+        </div>
+    </div>
 
     <div class="prompt-input-container">
         <input 
@@ -22,7 +29,6 @@
         <button id="submitPromptBtn" class="submit-btn">Submit</button>
     </div>
 
-    <!-- Load compiled TypeScript -->
     <script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
 </body>
 </html>

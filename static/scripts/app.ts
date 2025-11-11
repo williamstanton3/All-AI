@@ -1,44 +1,24 @@
-import { LLMColumn } from "./llmColumn.js";
-import { currentColumns, addColumnID, removeColumnID } from "./state.js";
-
-const container = document.getElementById("llmContainer") as HTMLDivElement;
 const addColumnBtn = document.getElementById("addColumnBtn") as HTMLButtonElement;
-const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
-const promptInput = document.getElementById("promptInput") as HTMLInputElement;
+const addColumnContainer = document.getElementById("addColumnContainer") as HTMLDivElement;
+const modelDropdown = document.getElementById("modelDropdown") as HTMLDivElement;
 
-let nextColumnId = 1;
-
-// Default models
-const defaultModels = ["CHATGPT", "GROK", "GEMINI"];
-
-defaultModels.forEach(model => {
-    createColumn(model);
+// Show/hide dropdown when + is clicked
+addColumnBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    modelDropdown.style.display = modelDropdown.style.display === "block" ? "none" : "block";
 });
 
-function createColumn(modelName: string = "LLM " + nextColumnId) {
-    const col = new LLMColumn(nextColumnId, modelName);
-    addColumnID(nextColumnId);
-    container.appendChild(col.element);
-    nextColumnId++;
-}
-
-// Add new column with generic name when + is clicked
-addColumnBtn.addEventListener("click", () => {
-    createColumn();
+// Hide dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    if (!addColumnContainer.contains(e.target as Node)) {
+        modelDropdown.style.display = "none";
+    }
 });
 
-window.addEventListener("columnDeleted", (e) => {
-    const event = e as CustomEvent<{ id: number }>;
-    removeColumnID(event.detail.id);
-});
-
-// Broadcast prompt to all current columns
-submitPromptBtn.addEventListener("click", () => {
-    const prompt = promptInput.value.trim();
-    if (!prompt) return;
-
-    const outputs = container.querySelectorAll(".llm-output");
-    outputs.forEach((output) => {
-        output.textContent = "Thinking...\nPrompt: " + prompt;
+// Dropdown items do nothing
+modelDropdown.querySelectorAll(".dropdown-item").forEach(item => {
+    item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        modelDropdown.style.display = "none"; // just close dropdown
     });
 });

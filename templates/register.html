@@ -1,4 +1,5 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='/styles/register.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/register.css') }}">
+
 <body>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -8,25 +9,27 @@
       {% endif %}
     {% endwith %}
 
-    <form class="register-form" method="POST">
-        {{ form.hidden_tag() }}
+    <div class="register-container">
+        <h1 class="login-title">ALL AI</h1>
+        
+        <form class="register-form" method="POST">
+            {{ form.hidden_tag() }}
 
-        {{ form.email.label }}
-        {{ form.email() }}<br>
+            {{ form.email.label }}
+            {{ form.email() }}<br>
 
-        {{ form.password.label }}
-        {{ form.password() }}<br>
+            {{ form.password.label }}
+            {{ form.password() }}<br>
 
-        {{ form.confirm_password.label }}
-        {{ form.confirm_password() }}<br>
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password() }}<br>
 
-        {{ form.submit() }}
-    </form>
+            {{ form.submit() }}
+        </form>
 
-    <p style="text-align:center; margin-top:15px; color:#fff;">
-        Already have an account?
-        <a href="{{ url_for('get_login') }}" style="color:#ffefc2; text-decoration:underline;">
-            Login here
-        </a>
-    </p>
+        <p class="login-text">
+            Already have an account?
+            <a href="{{ url_for('get_login') }}">Login here</a>
+        </p>
+    </div>
 </body>

@@ -82,7 +82,6 @@ class User(UserMixin, db.Model):
 
 
 with app.app_context():
-    db.drop_all() # FOR TESTING PURPOSES ONLY
     db.create_all() 
 
 @app.get('/register/')
@@ -119,7 +118,6 @@ def get_login():
     return render_template('login.html', form=form)
 
 
-
 @app.post('/login/')
 def post_login():
     form = LoginForm()
@@ -133,7 +131,7 @@ def post_login():
             # redirect the user to the page they wanted or the home page
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
-                next = url_for('index')
+                next = url_for('home')
             return redirect(next)
         else: # if the user does not exist or the password is incorrect
             # flash an error message and redirect to login form

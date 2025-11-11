@@ -1,41 +1,53 @@
-/* General body styling */
+/* ===== PAGE LAYOUT ===== */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #43cea2, #185a9d); /* slightly different gradient to distinguish login */
-    height: 100vh;
     margin: 0;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
 }
 
-/* Flash messages */
+/* Container for form + register link */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ===== FLASH MESSAGES ===== */
 .flash {
-    background-color: rgba(255, 239, 194, 0.9);
-    color: #333;
+    background-color: rgba(100, 100, 100, 0.85);
+    color: #f0f0f0;
     padding: 10px 20px;
     border-radius: 5px;
     margin-bottom: 15px;
     text-align: center;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Form container */
+/* ===== LOGIN FORM ===== */
 .login-form {
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    width: 320px;
     padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+
     display: flex;
     flex-direction: column;
-    width: 320px;
+
+    background-color: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+
+    margin-bottom: 25px; /* creates space for the register link */
 }
 
 /* Form labels */
 .login-form label {
-    color: #fff;
+    color: #e0e0e0;
     font-weight: 600;
     margin-bottom: 5px;
 }
@@ -46,42 +58,65 @@ body {
 .login-form input[type="password"] {
     padding: 10px 12px;
     margin-bottom: 20px;
-    border-radius: 6px;
     border: none;
+    border-radius: 6px;
     outline: none;
     font-size: 16px;
-    transition: 0.3s ease;
+    background-color: #333;
+    color: #f0f0f0;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-/* Input focus effect */
+/* Input focus */
 .login-form input:focus {
-    box-shadow: 0 0 5px 2px rgba(255, 239, 194, 0.7);
+    box-shadow: 0 0 5px 2px rgba(200, 200, 200, 0.5);
+    background-color: #444;
 }
 
 /* Submit button */
 .login-form input[type="submit"] {
-    background-color: #ffefc2;
-    color: #333;
-    font-weight: bold;
     padding: 12px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.3s ease;
+
+    background-color: #666;
+    color: #f0f0f0;
+    font-weight: bold;
+
+    transition: background-color 0.3s ease;
 }
 
 .login-form input[type="submit"]:hover {
-    background-color: #ffd966;
+    background-color: #888;
 }
 
-/* Link styling */
-.login-form + p a {
-    color: #ffefc2;
+/* ===== REGISTER LINK ===== */
+.register-text {
+    color: #e0e0e0;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.register-text a {
+    color: #999;
     font-weight: 600;
     text-decoration: underline;
-    transition: 0.2s;
+    transition: color 0.2s ease;
 }
 
-.login-form + p a:hover {
-    color: #fff;
+.register-text a:hover {
+    color: #f0f0f0;
+}
+
+/* ===== LOGIN PAGE TITLE ===== */
+.login-title {
+    font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* futuristic font */
+    font-size: 48px;
+    font-weight: bold;
+    color: #f0f0f0;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    text-align: center;
 }
