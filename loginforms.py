@@ -4,17 +4,21 @@ from wtforms.validators import InputRequired, Email, EqualTo, Length
 
 # define our own FlaskForm subclass for our form
 class RegisterForm(FlaskForm):
-    email = EmailField("Email: ", validators=[InputRequired(), Email()])
+    email = EmailField("Email: ", validators=[InputRequired()])
     password = PasswordField("Password: ", 
         validators=[InputRequired(), Length(min=8, max=256)])
-    confirm_password = PasswordField("Confirm Password: ", 
-        validators=[EqualTo('password')])
+    confirm_password = PasswordField(
+    'Confirm Password',
+    validators=[
+        InputRequired(),
+        EqualTo('password', message="Passwords don't match")
+    ])
     submit = SubmitField("Register")
 
 
 # define our own FlaskForm subclass for our form
 class LoginForm(FlaskForm):
-    email = EmailField("Email: ", validators=[InputRequired(), Email()])
+    email = EmailField("Email: ", validators=[InputRequired()])
     password = PasswordField("Password: ", 
         validators=[InputRequired(), Length(min=8, max=256)])
     submit = SubmitField("Login")

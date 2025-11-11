@@ -17,16 +17,21 @@ body {
     align-items: center;
 }
 
-/* ===== FLASH MESSAGES ===== */
+/* Flash toast message for errors */
 .flash {
-    background-color: rgba(100, 100, 100, 0.85);
-    color: #f0f0f0;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
+    position: fixed;        /* appear over the page */
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ff4d4d; /* red background for errors */
+    color: white;             /* text color */
+    padding: 12px 20px;
+    border-radius: 8px;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
 }
 
 /* ===== REGISTER FORM ===== */

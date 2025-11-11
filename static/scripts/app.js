@@ -1,37 +1,55 @@
-import { LLMColumn } from "./llmColumn.js";
-import { addColumnID, removeColumnID } from "./state.js";
-const container = document.getElementById("llmContainer");
+"use strict";
 const addColumnBtn = document.getElementById("addColumnBtn");
-const submitPromptBtn = document.getElementById("submitPromptBtn");
-const promptInput = document.getElementById("promptInput");
-let nextColumnId = 1;
-// Default models
-const defaultModels = ["CHATGPT", "GROK", "GEMINI"];
-defaultModels.forEach(model => {
-    createColumn(model);
-});
-function createColumn(modelName = "LLM " + nextColumnId) {
-    const col = new LLMColumn(nextColumnId, modelName);
-    addColumnID(nextColumnId);
-    container.appendChild(col.element);
-    nextColumnId++;
+const addColumnContainer = document.getElementById("addColumnContainer");
+const modelDropdown = document.getElementById("modelDropdown");
+const llmContainer = document.getElementById("llmContainer");
+// Default LLMs
+const defaultLLMs = ["CHATGPT", "GROK", "GEMINI"];
+// Function to create a column
+function createLLMColumn(name) {
+    const col = document.createElement("div");
+    col.className = "llm-column";
+    const header = document.createElement("div");
+    header.className = "column-header";
+    header.textContent = name;
+    // Add a close button
+    const closeBtn = document.createElement("span");
+    closeBtn.textContent = "×";
+    closeBtn.style.float = "right";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.marginLeft = "10px";
+    closeBtn.addEventListener("click", () => col.remove());
+    header.appendChild(closeBtn);
+    const output = document.createElement("div");
+    output.className = "llm-output";
+    output.textContent = "Waiting for prompt...";
+    col.appendChild(header);
+    col.appendChild(output);
+    // Insert the column before the plus button
+    llmContainer.insertBefore(col, addColumnContainer);
 }
-// Add new column with generic name when + is clicked
-addColumnBtn.addEventListener("click", () => {
-    createColumn();
+// Initialize default columns
+defaultLLMs.forEach(createLLMColumn);
+// Show/hide dropdown when + is clicked
+addColumnBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    modelDropdown.style.display = modelDropdown.style.display === "block" ? "none" : "block";
 });
-window.addEventListener("columnDeleted", (e) => {
-    const event = e;
-    removeColumnID(event.detail.id);
+// Hide dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    if (!addColumnContainer.contains(e.target)) {
+        modelDropdown.style.display = "none";
+    }
 });
-// Broadcast prompt to all current columns
-submitPromptBtn.addEventListener("click", () => {
-    const prompt = promptInput.value.trim();
-    if (!prompt)
-        return;
-    const outputs = container.querySelectorAll(".llm-output");
-    outputs.forEach((output) => {
-        output.textContent = "Thinking...\nPrompt: " + prompt;
+// Dropdown items: add a new column when clicked
+modelDropdown.querySelectorAll(".dropdown-item").forEach(item => {
+    item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const modelName = item.textContent;
+        if (modelName) {
+            createLLMColumn(modelName);
+        }
+        modelDropdown.style.display = "none";
     });
 });
 //# sourceMappingURL=app.js.map

@@ -1,4 +1,10 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='/styles/login.css') }}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
+</head>
 <body>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -23,5 +29,8 @@
             <a href="{{ url_for('get_register') }}">Register here</a>
         </p>
     </div>
-  
+
+    <!-- Include compiled TypeScript -->
+    <script src="{{ url_for('static', filename='scripts/login.js') }}" type="module"></script>
 </body>
+</html>

@@ -29,6 +29,12 @@
         <button id="submitPromptBtn" class="submit-btn">Submit</button>
     </div>
 
+    <!-- Account links at the bottom -->
+    <div class="account-link-container">
+        <a href="{{ url_for('account') }}" class="account-link">View Account</a>
+        <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
+    </div>
+
     <script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
 </body>
 </html>

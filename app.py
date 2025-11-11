@@ -108,7 +108,7 @@ def post_register():
     else: # if the form was invalid
         # flash error messages and redirect to get registration form again
         for field, error in form.errors.items():
-            flash(f"{field}: {error}")
+            flash(f"{error}")
         return redirect(url_for('get_register'))
 
 
@@ -142,6 +142,10 @@ def post_login():
         for field, error in form.errors.items():
             flash(f"{field}: {error}")
         return redirect(url_for('get_login'))
+    
+@app.get('/account')
+def account():
+    return render_template('account.html', current_user=current_user)
 
 @app.get('/home')
 def home():
@@ -151,6 +155,7 @@ def home():
 @app.get('/')
 def default_route():
     return redirect(url_for('get_login'))
+
 
 
 # # -------------------

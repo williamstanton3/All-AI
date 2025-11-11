@@ -132,3 +132,31 @@ body {
 .submit-btn:hover {
     background-color: #888;
 }
+
+
+/* ===== ACCOUNT / LOGOUT LINKS ===== */
+.account-link-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px; /* space between the links */
+    z-index: 100;
+}
+
+.account-link,
+.logout-link {
+    color: #ffffff;           /* white text */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.account-link:hover,
+.logout-link:hover {
+    color: #aaa;              /* subtle hover effect */
+}
+
