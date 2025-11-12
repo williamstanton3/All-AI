@@ -1,3 +1,5 @@
+import { fetchChatGPTResponse } from "./chatgptService.js";
+
 const addColumnBtn = document.getElementById("addColumnBtn") as HTMLButtonElement;
 const addColumnContainer = document.getElementById("addColumnContainer") as HTMLDivElement;
 const modelDropdown = document.getElementById("modelDropdown") as HTMLDivElement;
@@ -5,24 +7,70 @@ const llmContainer = document.getElementById("llmContainer") as HTMLDivElement;
 const promptInput = document.getElementById("promptInput") as HTMLInputElement;
 const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
 
-// Click handler: read prompt, update columns (optional), clear and focus input
-submitPromptBtn.addEventListener("click", () => {
+// Click handler: read prompt, and update columns
+submitPromptBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
-    if (!prompt) return; // ignore empty submissions
+    if (!prompt) return;
 
-    console.log("Prompt submitted:", prompt);
+    const chatgptColumns = Array.from(
+        llmContainer.querySelectorAll<HTMLDivElement>(".llm-column")
+    ).filter(col => (col.querySelector<HTMLDivElement>(".column-header")?.dataset.model) === "CHATGPT");
 
-    // update each LLM column's output area
-    llmContainer.querySelectorAll(".llm-column .llm-output").forEach(el => {
-        if (el.textContent === "Waiting for prompt...") {
-            el.textContent = "";
+    // Append a user bubble element (dark box) and show spinner
+    chatgptColumns.forEach(col => {
+        const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
+
+        // Remove placeholder if present
+        const placeholder = out.querySelector(".placeholder");
+        if (placeholder) placeholder.remove();
+
+        // Create user bubble
+        const userBubble = document.createElement("div") as HTMLDivElement;
+        userBubble.className = "user-bubble";
+        userBubble.textContent = prompt;
+        out.appendChild(userBubble);
+
+        // Only add spinner if one isn't already present
+        if (!out.querySelector<HTMLSpanElement>(".loading-spinner")) {
+            const spinner = document.createElement("span") as HTMLSpanElement;
+            spinner.className = "loading-spinner";
+            spinner.setAttribute("role", "status");
+            const sr = document.createElement("span") as HTMLSpanElement;
+            sr.className = "visually-hidden";
+            sr.textContent = "Loading";
+            spinner.appendChild(sr);
+            out.appendChild(spinner);
         }
-        (el as HTMLDivElement).textContent += `${prompt}\n`;
     });
 
-    // Clear the text box and focus it
+    // Clear input early
     promptInput.value = "";
     promptInput.focus();
+
+    try {
+        const reply = await fetchChatGPTResponse(prompt);
+
+        await Promise.all(chatgptColumns.map(async (col) => {
+            const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
+
+            // Remove spinner if present
+            const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+            if (spinner) spinner.remove();
+
+            // Animate the model reply word-by-word (30ms per word)
+            await typeWords(out, reply, 30);
+        }));
+    } catch (err) {
+        chatgptColumns.forEach(col => {
+            const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
+            const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+            if (spinner) spinner.remove();
+            const errDiv = document.createElement("div") as HTMLDivElement;
+            errDiv.className = "error";
+            errDiv.textContent = `Error: ${(err as Error).message}`;
+            out.appendChild(errDiv);
+        });
+    }
 });
 
 // submit on Enter key
@@ -36,17 +84,65 @@ promptInput.addEventListener("keydown", (e) => {
 // Default LLMs
 const defaultLLMs = ["CHATGPT", "GROK", "GEMINI"];
 
+// File: `static/scripts/app.ts` - replace existing typeWords with this
+async function typeWords(outContainer: HTMLDivElement, text: string, delay = 30) {
+    const modelDiv = document.createElement("div");
+    modelDiv.className = "model-response";
+    outContainer.appendChild(modelDiv);
+
+    // split keeping whitespace so spacing/newlines are preserved
+    const tokens = text.split(/(\s+)/);
+
+    for (const token of tokens) {
+        if (!token) continue;
+
+        // Pure whitespace (spaces, tabs, newlines)
+        if (/^\s+$/.test(token)) {
+            if (token.includes("\n")) {
+                // Convert newlines to <br> while preserving any surrounding spaces
+                const parts = token.split(/(\n)/);
+                for (const part of parts) {
+                    if (part === "\n") {
+                        modelDiv.appendChild(document.createElement("br"));
+                    } else if (part.length > 0) {
+                        // append actual space characters as text nodes so layout spacing stays correct
+                        modelDiv.appendChild(document.createTextNode(part));
+                    }
+                }
+            } else {
+                // simple spaces/tabs -> append as text node
+                modelDiv.appendChild(document.createTextNode(token));
+            }
+            continue; // don't animate whitespace
+        }
+
+        // Regular word/token -> animate
+        const span = document.createElement("span");
+        span.className = "word";
+        span.textContent = token;
+        modelDiv.appendChild(span);
+
+        // force layout so transition runs
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        span.offsetWidth;
+        span.classList.add("show");
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+    }
+}
+
+
 // Function to create a column
 function createLLMColumn(name: string) {
-    const col = document.createElement("div");
+    const col = document.createElement("div") as HTMLDivElement;
     col.className = "llm-column";
 
-    const header = document.createElement("div");
+    const header = document.createElement("div") as HTMLDivElement;
     header.className = "column-header";
     header.textContent = name;
+    header.dataset.model = name;
 
-    // Add a close button
-    const closeBtn = document.createElement("span");
+    const closeBtn = document.createElement("span") as HTMLSpanElement;
     closeBtn.textContent = "×";
     closeBtn.style.float = "right";
     closeBtn.style.cursor = "pointer";
@@ -54,14 +150,17 @@ function createLLMColumn(name: string) {
     closeBtn.addEventListener("click", () => col.remove());
     header.appendChild(closeBtn);
 
-    const output = document.createElement("div");
+    const output = document.createElement("div") as HTMLDivElement;
     output.className = "llm-output";
-    output.textContent = "Waiting for prompt...";
+    // Use a placeholder child so we don't rely on textContent for transcript
+    const placeholder = document.createElement("div") as HTMLDivElement;
+    placeholder.className = "placeholder";
+    placeholder.textContent = "Waiting for prompt...";
+    output.appendChild(placeholder);
 
     col.appendChild(header);
     col.appendChild(output);
 
-    // Insert the column before the plus button
     llmContainer.insertBefore(col, addColumnContainer);
 }
 
@@ -82,7 +181,7 @@ document.addEventListener("click", (e) => {
 });
 
 // Dropdown items: add a new column when clicked
-modelDropdown.querySelectorAll(".dropdown-item").forEach(item => {
+modelDropdown.querySelectorAll<HTMLDivElement>(".dropdown-item").forEach(item => {
     item.addEventListener("click", (e) => {
         e.stopPropagation();
         const modelName = (item as HTMLDivElement).textContent;
