@@ -1,7 +1,8 @@
 from __future__ import annotations
 import os
 from flask import Flask, render_template, url_for, redirect
-from flask import request, session, flash
+from flask import request, session, flash, jsonify
+from openai import OpenAI
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, mapped_column
@@ -29,6 +30,7 @@ pwd_hasher = UpdatedHasher(pepper_key)
 
 # configure the flask application 
 app = Flask(__name__)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'correcthorsebatterystaple'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}"
@@ -155,6 +157,46 @@ def home():
 @app.get('/')
 def default_route():
     return redirect(url_for('get_login'))
+
+@app.post("/api/chatgpt")
+def chatgpt():
+    data = request.get_json(force=True)
+    prompt = data.get("prompt", "").strip()
+    if not prompt:
+        return jsonify({"error": "Empty prompt"}), 400
+
+    model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    app.logger.info("Chat endpoint called; model=%s prompt_len=%d", model, len(prompt))
+
+    try:
+        completion = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=120,
+            top_p=1.0,
+            n=1,
+            stop=["\n\n"],
+        )
+
+        # Extract reply defensively
+        reply = None
+        try:
+            reply = completion.choices[0].message.content
+        except Exception:
+            try:
+                reply = completion["choices"][0]["message"]["content"]
+            except Exception:
+                reply = None
+
+        if not reply:
+            app.logger.error("No text reply found in OpenAI response")
+            return jsonify({"error": "No reply from model"}), 500
+
+        return jsonify({"reply": reply})
+    except Exception as e:
+        app.logger.exception("OpenAI request failed")
+        return jsonify({"error": str(e)}), 500
 
 
 
