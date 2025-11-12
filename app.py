@@ -18,7 +18,6 @@ from loginforms import RegisterForm, LoginForm
 
 from datetime import datetime
 
-
 # Identify necessary files
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 dbfile = os.path.join(scriptdir, "users.sqlite3")
@@ -49,17 +48,19 @@ login_manager.init_app(app)
 login_manager.login_view = 'get_login' # type: ignore
 login_manager.session_protection = "strong"
 
-# function that takes a user id and as a string and returns that user
+# function that takes a user id as a string and returns that user
 @login_manager.user_loader
 def load_user(uid: str) -> User|None:
     return get_user(uid=int(uid))
 
-# define a helper function that loads uses based on id or email
+# define a helper function that loads users based on id or email
 def get_user(uid: int|None = None, email: str|None = None) -> User|None:
     query: Select[Tuple[User]] = db.select(User)
-    if   uid is not None: query = query.filter_by(id=uid)
-    elif email is not None: query = query.filter_by(email=email)
-    row:  Row[Tuple[User]]|None = db.session.execute(query).first()
+    if uid is not None:
+        query = query.filter_by(id=uid)
+    elif email is not None:
+        query = query.filter_by(email=email)
+    row: Row[Tuple[User]]|None = db.session.execute(query).first()
     user: User|None = None if row is None else row[0]
     return user
 
@@ -69,47 +70,44 @@ def get_user(uid: int|None = None, email: str|None = None) -> User|None:
 # Create a database model for Users
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    # define the table values (id, email, pwd_hash)
-    id:       Mapped[int]   = mapped_column(primary_key=True)
-    email:    Mapped[str]   = mapped_column(nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(nullable=False)
     pwd_hash: Mapped[bytes] = mapped_column(nullable=False)
-    
-    # add a status column to the user table
-    status: Mapped[str] = mapped_column(nullable=False, default='Free') #can be either free or premium
-    
-    # set up the relationship to the chat history so it auto updates
-    history: Mapped[list[ChatHistory]] = db.relationship(back_populates='user') # type: ignore
+    status: Mapped[str] = mapped_column(nullable=False, default='Free')  # Free or Premium
+    history: Mapped[list[ChatHistory]] = db.relationship(back_populates='user')  # type: ignore
 
-    # make a write-only password property that just updates the stored hash
     @property
     def password(self):
-        raise AttributeError("password is a write-only attribute")
+        raise AttributeError("password is write-only")
+    
     @password.setter
     def password(self, pwd: str) -> None:
         self.pwd_hash = pwd_hasher.hash(pwd)
     
-    # add a verify_password convenience method
     def verify_password(self, pwd: str) -> bool:
         return pwd_hasher.check(pwd, self.pwd_hash)
-    
-# Create database model for chat history
 
+
+# Create database model for chat history
 class ChatHistory(db.Model):
     __tablename__ = 'chat_history'
-    # define the table values (id, user_id, input_prompt, model_responses)
-    id: Mapped[int]   = mapped_column(primary_key=True)
-    user_id: Mapped[int]   = mapped_column(db.ForeignKey('users.id'), nullable=False)
-    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(db.ForeignKey('users.id'), nullable=False)
     input_prompt: Mapped[str] = mapped_column(db.Text, nullable=False)
     model_name: Mapped[str] = mapped_column(db.String(100), nullable=False)
     model_response: Mapped[str] = mapped_column(db.Text, nullable=False)
-    date_saved: Mapped[datetime] = mapped_column(default= datetime.now(), nullable=False)
+    date_saved: Mapped[datetime] = mapped_column(default=datetime.now, nullable=False)
     
-    user: Mapped[User]= db.relationship(back_populates='history') # type: ignore
-    
-    
+    user: Mapped[User] = db.relationship(back_populates='history')  # type: ignore
+
+
 with app.app_context():
-    db.create_all() 
+    db.create_all()
+
+
+# -----------------------
+# Routes
+# -----------------------
 
 @app.get('/register/')
 def get_register():
@@ -120,26 +118,19 @@ def get_register():
 def post_register():
     form = RegisterForm()
     if form.validate():
-        # check if there is already a user with this email address
         user: User|None = get_user(email=form.email.data)
-
-        # if the email address is free, create a new user and send to login
         if user is None:
-            #get status value from form (initialized to free by default)
-            statusBox="Free"
+            statusBox = "Free"
             if form.status.data:
-                statusBox="Premium"
-    
-            user = User(email=form.email.data, password=form.password.data, status=statusBox) # type:ignore
+                statusBox = "Premium"
+            user = User(email=form.email.data, password=form.password.data, status=statusBox)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('home'))
-        else: # if the user already exists
-            # flash a warning message and redirect to get registration form
+        else:
             flash('There is already an account with that email address')
             return redirect(url_for('get_register'))
-    else: # if the form was invalid
-        # flash error messages and redirect to get registration form again
+    else:
         for field, error in form.errors.items():
             flash(f"{error}")
         return redirect(url_for('get_register'))
@@ -150,32 +141,25 @@ def get_login():
     form = LoginForm()
     return render_template('login.html', form=form)
 
-
 @app.post('/login/')
 def post_login():
     form = LoginForm()
     if form.validate():
-        # try to get the user associated with this email address
         user: User|None = get_user(email=form.email.data)
-        # if this user exists and the password matches
         if user is not None and user.verify_password(str(form.password.data)):
-            # log this user in through the login_manager
             login_user(user)
-            # redirect the user to the page they wanted or the home page
-            next = request.args.get('next')
-            if next is None or not next.startswith('/'):
-                next = url_for('home')
-            return redirect(next)
-        else: # if the user does not exist or the password is incorrect
-            # flash an error message and redirect to login form
+            next_page = request.args.get('next')
+            if next_page is None or not next_page.startswith('/'):
+                next_page = url_for('home')
+            return redirect(next_page)
+        else:
             flash('Invalid email address or password')
             return redirect(url_for('get_login'))
-    else: # if the form was invalid
-        # flash error messages and redirect to get login form again
+    else:
         for field, error in form.errors.items():
             flash(f"{field}: {error}")
         return redirect(url_for('get_login'))
-    
+
 @app.get('/account')
 def account():
     return render_template('account.html', current_user=current_user)
@@ -184,11 +168,14 @@ def account():
 def home():
     return render_template('home.html', current_user=current_user)
 
-# redirect the user to the login page when they first access the site
 @app.get('/')
 def default_route():
     return redirect(url_for('get_login'))
 
+
+# -----------------------
+# ChatGPT endpoint with conversation memory
+# -----------------------
 @app.post("/api/chatgpt")
 def chatgpt():
     data = request.get_json(force=True)
@@ -200,47 +187,40 @@ def chatgpt():
     app.logger.info("Chat endpoint called; model=%s prompt_len=%d", model, len(prompt))
 
     try:
+        # --- Build conversation history ---
+        history_entries = ChatHistory.query.filter_by(user_id=current_user.id).order_by(ChatHistory.id.asc()).all()
+        messages = [{"role": "system", "content": "You are a helpful assistant."}]
+        for entry in history_entries:
+            messages.append({"role": "user", "content": entry.input_prompt})
+            messages.append({"role": "assistant", "content": entry.model_response})
+        messages.append({"role": "user", "content": prompt})
+
+        # --- Call OpenAI API ---
         completion = client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
             temperature=0.2,
             max_tokens=120,
-            top_p=1.0,
-            n=1,
-            stop=["\n\n"],
+            top_p=1.0
         )
 
-        # Extract reply defensively
-        reply = None
-        try:
-            reply = completion.choices[0].message.content
-        except Exception:
-            try:
-                reply = completion["choices"][0]["message"]["content"]
-            except Exception:
-                reply = None
+        reply = completion.choices[0].message.content
 
-        if not reply:
-            app.logger.error("No text reply found in OpenAI response")
-            return jsonify({"error": "No reply from model"}), 500
-        
-        new_history= ChatHistory(
-            user_id=current_user.id, # type:ignore
-            input_prompt=prompt, # type:ignore
-            model_name= model, # type:ignore
-            model_response=reply # type:ignore
+        # --- Save new message in database ---
+        new_history = ChatHistory(
+            user_id=current_user.id,
+            input_prompt=prompt,
+            model_name=model,
+            model_response=reply
         )
         db.session.add(new_history)
         db.session.commit()
 
         return jsonify({"reply": reply})
+
     except Exception as e:
-        db.session.rollback()
         app.logger.exception("OpenAI request failed")
         return jsonify({"error": str(e)}), 500
-    
-    
-
 
 
 # # -------------------
