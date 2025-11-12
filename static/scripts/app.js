@@ -81,7 +81,7 @@ promptInput.addEventListener("keydown", (e) => {
 });
 // Default LLMs
 const defaultLLMs = ["CHATGPT", "GROK", "GEMINI"];
-// File: `static/scripts/app.ts` - replace existing typeWords with this
+// Creates a typing words animation
 function typeWords(outContainer_1, text_1) {
     return __awaiter(this, arguments, void 0, function* (outContainer, text, delay = 30) {
         const modelDiv = document.createElement("div");
