@@ -230,9 +230,12 @@ def chatgpt():
             model_name= model, # type:ignore
             model_response=reply # type:ignore
         )
+        db.session.add(new_history)
+        db.session.commit()
 
         return jsonify({"reply": reply})
     except Exception as e:
+        db.session.rollback()
         app.logger.exception("OpenAI request failed")
         return jsonify({"error": str(e)}), 500
     
