@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/account.css') }}">
+</head>
+<body>
+    <div class="account-container">
+        <h1>Account Details</h1>
+
+        <div class="account-info">
+            <div class="info-row">
+                <span class="info-label">Username:</span>
+                <span class="info-value">{{ current_user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Account Status:</span>
+                <span class="info-value">{{ current_user.status }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home link at the bottom -->
+    <div class="home-link-container">
+        <a href="{{ url_for('home') }}" class="home-link">Back to Home Page</a>
+    </div>
+</body>
+</html>

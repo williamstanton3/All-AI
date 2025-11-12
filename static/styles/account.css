@@ -1,0 +1,56 @@
+/* ===== PAGE LAYOUT ===== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+    color: #ffffff; /* White text */
+    display: flex;
+    justify-content: center; /* horizontal centering */
+    align-items: center;     /* vertical centering */
+    height: 100vh;           /* full viewport height */
+}
+
+/* ===== ACCOUNT CONTAINER ===== */
+.account-container {
+    text-align: center;
+}
+
+.account-container h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+/* ===== ACCOUNT INFO ROWS ===== */
+.account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-row {
+    font-size: 20px;
+}
+
+/* ===== Home LINK ===== */
+.home-link-container {
+    text-align: center;       /* center horizontally */
+    position: fixed;          /* fixed at the bottom */
+    bottom: 20px;             /* distance from bottom */
+    left: 50%;
+    transform: translateX(-50%); /* center horizontally with fixed positioning */
+    width: auto;
+    z-index: 100;
+}
+
+.home-link {
+    color: #ffffff;           /* white text */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.home-link:hover {
+    color: #aaa;              /* subtle hover effect */
+}
