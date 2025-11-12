@@ -2,6 +2,36 @@ const addColumnBtn = document.getElementById("addColumnBtn") as HTMLButtonElemen
 const addColumnContainer = document.getElementById("addColumnContainer") as HTMLDivElement;
 const modelDropdown = document.getElementById("modelDropdown") as HTMLDivElement;
 const llmContainer = document.getElementById("llmContainer") as HTMLDivElement;
+const promptInput = document.getElementById("promptInput") as HTMLInputElement;
+const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
+
+// Click handler: read prompt, update columns (optional), clear and focus input
+submitPromptBtn.addEventListener("click", () => {
+    const prompt = promptInput.value.trim();
+    if (!prompt) return; // ignore empty submissions
+
+    console.log("Prompt submitted:", prompt);
+
+    // update each LLM column's output area
+    llmContainer.querySelectorAll(".llm-column .llm-output").forEach(el => {
+        if (el.textContent === "Waiting for prompt...") {
+            el.textContent = "";
+        }
+        (el as HTMLDivElement).textContent += `${prompt}\n`;
+    });
+
+    // Clear the text box and focus it
+    promptInput.value = "";
+    promptInput.focus();
+});
+
+// submit on Enter key
+promptInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        submitPromptBtn.click();
+    }
+});
 
 // Default LLMs
 const defaultLLMs = ["CHATGPT", "GROK", "GEMINI"];
