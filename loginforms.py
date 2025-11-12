@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms.fields import PasswordField, SubmitField, EmailField
+from wtforms.fields import PasswordField, SubmitField, EmailField, BooleanField
 from wtforms.validators import InputRequired, Email, EqualTo, Length
 
 # define our own FlaskForm subclass for our form
@@ -13,6 +13,7 @@ class RegisterForm(FlaskForm):
         InputRequired(),
         EqualTo('password', message="Passwords don't match")
     ])
+    status= BooleanField("Premium Account?")
     submit = SubmitField("Register")
 
 

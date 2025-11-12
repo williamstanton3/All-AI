@@ -16,6 +16,8 @@ from flask_login import login_user, logout_user, current_user
 from hashing_examples import UpdatedHasher
 from loginforms import RegisterForm, LoginForm
 
+from datetime import datetime
+
 
 # Identify necessary files
 scriptdir = os.path.dirname(os.path.abspath(__file__))
@@ -66,9 +68,17 @@ def get_user(uid: int|None = None, email: str|None = None) -> User|None:
 
 # Create a database model for Users
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    # define the table values (id, email, pwd_hash)
     id:       Mapped[int]   = mapped_column(primary_key=True)
     email:    Mapped[str]   = mapped_column(nullable=False)
     pwd_hash: Mapped[bytes] = mapped_column(nullable=False)
+    
+    # add a status column to the user table
+    status: Mapped[str] = mapped_column(nullable=False, default='Free') #can be either free or premium
+    
+    # set up the relationship to the chat history so it auto updates
+    history: Mapped[list[ChatHistory]] = db.relationship(back_populates='user') # type: ignore
 
     # make a write-only password property that just updates the stored hash
     @property
@@ -81,8 +91,23 @@ class User(UserMixin, db.Model):
     # add a verify_password convenience method
     def verify_password(self, pwd: str) -> bool:
         return pwd_hasher.check(pwd, self.pwd_hash)
+    
+# Create database model for chat history
 
-
+class ChatHistory(db.Model):
+    __tablename__ = 'chat_history'
+    # define the table values (id, user_id, input_prompt, model_responses)
+    id: Mapped[int]   = mapped_column(primary_key=True)
+    user_id: Mapped[int]   = mapped_column(db.ForeignKey('users.id'), nullable=False)
+    
+    input_prompt: Mapped[str] = mapped_column(db.Text, nullable=False)
+    model_name: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    model_response: Mapped[str] = mapped_column(db.Text, nullable=False)
+    date_saved: Mapped[datetime] = mapped_column(default= datetime.now(), nullable=False)
+    
+    user: Mapped[User]= db.relationship(back_populates='history') # type: ignore
+    
+    
 with app.app_context():
     db.create_all() 
 
@@ -97,9 +122,15 @@ def post_register():
     if form.validate():
         # check if there is already a user with this email address
         user: User|None = get_user(email=form.email.data)
+
         # if the email address is free, create a new user and send to login
         if user is None:
-            user = User(email=form.email.data, password=form.password.data) # type:ignore
+            #get status value from form (initialized to free by default)
+            statusBox="Free"
+            if form.status.data:
+                statusBox="Premium"
+    
+            user = User(email=form.email.data, password=form.password.data, status=statusBox) # type:ignore
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('home'))
@@ -192,11 +223,20 @@ def chatgpt():
         if not reply:
             app.logger.error("No text reply found in OpenAI response")
             return jsonify({"error": "No reply from model"}), 500
+        
+        new_history= ChatHistory(
+            user_id=current_user.id, # type:ignore
+            input_prompt=prompt, # type:ignore
+            model_name= model, # type:ignore
+            model_response=reply # type:ignore
+        )
 
         return jsonify({"reply": reply})
     except Exception as e:
         app.logger.exception("OpenAI request failed")
         return jsonify({"error": str(e)}), 500
+    
+    
 
 
 

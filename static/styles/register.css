@@ -59,7 +59,8 @@ body {
 /* Inputs */
 .register-form input[type="text"],
 .register-form input[type="email"],
-.register-form input[type="password"] {
+.register-form input[type="password"],
+.register-form input[type="checkbox"] {
     padding: 10px 12px;
     margin-bottom: 20px;
     border-radius: 6px;
