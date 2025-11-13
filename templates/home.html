@@ -7,6 +7,8 @@
 </head>
 
 <body>
+
+    
     <div id="historySidebar">
         <h3 id="chatHistory">Chat History</h3>
         <button id="newChat">New Chat</button>
@@ -21,6 +23,8 @@
         </div>
     </div>
     <div id="mainContainer">
+        <!-- hidden userstatus value to be accessed in the app.js file -->
+        <input type="hidden" id="userStatus" value="{{ current_user.status }}">
         
         <div id="llmContainer" class="llm-container">
 

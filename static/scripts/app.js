@@ -16,6 +16,8 @@ const promptInput = document.getElementById("promptInput");
 const submitPromptBtn = document.getElementById("submitPromptBtn");
 const newChatBtn= document.getElementById("newChat");
 const threadlist= document.getElementById("threadList");
+const userStatus= document.getElementById("userStatus").value;
+
 
 // Click handler: read prompt, and update columns
 submitPromptBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -176,13 +178,30 @@ modelDropdown.querySelectorAll(".dropdown-item").forEach(item => {
     item.addEventListener("click", (e) => {
         e.stopPropagation();
         const modelName = item.textContent;
+        
         if (modelName) {
-            createLLMColumn(modelName);
+            // only allows Free and Premium amount of colummns
+            let maxNumColumns = 3; 
+            if (userStatus === "Premium") {
+                maxNumColumns = 6;
+            }
+            const currNumColumns = llmContainer.querySelectorAll(".llm-column").length;
+            
+            if (currNumColumns < maxNumColumns) {
+                createLLMColumn(modelName);
+            } else {
+                const alertMessage = `You can only have up to ${maxNumColumns} LLM models.`;
+                
+                if (userStatus === "Free") {
+                    alert(`${alertMessage} Upgrade to Premium for more!`);
+                } else {
+                    alert(alertMessage);
+                }
+            }
         }
         modelDropdown.style.display = "none";
     });
 });
-
 //page is reloaded and new thread is started when newChat is clicked
 
 newChatBtn.addEventListener("click", ()=> {
