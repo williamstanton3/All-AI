@@ -34,7 +34,7 @@ app = Flask(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'correcthorsebatterystaple'
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}?timeout=10000"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Getting the database object handle from the app
@@ -192,7 +192,10 @@ def home():
     # Clears current thread to make a new one when refreshing home page
     if 'current_thread_id' in session:
         session.pop('current_thread_id') 
-    return render_template('home.html', current_user=current_user)
+    # Gets all the threads with a SQL Alchemy query
+    current_threads = ChatThread.query.filter_by(user_id=current_user.id).order_by(ChatThread.date_created.desc()).all() # type: ignore
+    
+    return render_template('home.html', current_user=current_user, threads=current_threads)
 
 @app.get('/')
 def default_route():
@@ -283,6 +286,10 @@ def new_thread():
     session.pop('current_thread_id', None) # Remove current thread from session
     return jsonify({"status": "new thread created"}), 200 
 
+# @app.get('/api/thread/<int:thread_id>')
+# def switch_thread(thread_id: int):
+    
+    
 # # -------------------
 # # Run app
 # # -------------------
