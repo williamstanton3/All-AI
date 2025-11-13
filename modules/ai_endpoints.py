@@ -7,7 +7,7 @@ from flask_login import current_user
 from xai_sdk.chat import user, system
 
 db = extensions.db
-debug_ai_messages = False
+debug_ai_messages = True
 
 def _get_or_create_thread(prompt: str) -> ChatThread:
     thread_id = session.get('current_thread_id')
