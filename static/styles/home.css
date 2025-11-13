@@ -4,9 +4,75 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
     color: #f0f0f0;
+
+    /* helps make the layout 2 columns and fill the viewport height */
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden; /* Prevent scrolling */
+    box-sizing: border-box; /* Include padding in height calculations */
 }
 
+#historySidebar { 
+    width: 250px; 
+    background-color: #333; 
+    color: white; 
+    padding: 15px; 
+    height: 100vh;
+    flex-shrink: 0; /* Prevents sidebar from shrinking */
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-thread {
+    flex-grow: 1; /* Takes up remaining space */
+    overflow-y: auto; /* Scroll if content exceeds height */
+    margin-top: 10px;
+    border-radius: 13px;
+    background-color: #444;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between; /* Space between title and date */
+
+}
+.chat-thread:hover {
+    background-color: #555;
+    cursor: pointer;
+}
+#newChat {
+    background-color: hsl(0, 1%, 84%);
+    color: #444;
+    border: none;
+    padding: 1vh;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    
+}
+#chatHistory{
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 2vh;
+    display: flex;
+    justify-content: center;
+    
+    box-sizing: border-box; /* Include padding in height calculations */
+}
+#mainContainer { 
+    flex-grow: 1; /* Takes up remaining space */
+    padding: 20px;
+    padding-bottom: 10%; /* Remove bottom padding to align with input area */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Space around LLM columns and input area */
+    min-height: 0; /* Prevent content overflow */
+    box-sizing: border-box; /* Include padding in height calculations */
+    
+ }
+ 
+
 .llm-container {
+    width: 100%;
     display: flex;
     align-items: flex-start;
     gap: 20px;
@@ -98,7 +164,10 @@ body {
 
 /* ===== PROMPT INPUT AREA ===== */
 .prompt-input-container {
+   
+    
     display: flex;
+    
     gap: 10px;
     padding: 20px;
 }

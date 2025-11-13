@@ -7,33 +7,50 @@
 </head>
 
 <body>
-    <div id="llmContainer" class="llm-container">
+    <div id="historySidebar">
+        <h3 id="chatHistory">Chat History</h3>
+        <button id="newChat">New Chat</button>
 
-        <!-- Plus button on the far right -->
-        <div id="addColumnContainer">
-            <button id="addColumnBtn" type="button">＋</button>
-            <div id="modelDropdown" class="dropdown">
-                <div class="dropdown-item">CHATGPT</div>
-                <div class="dropdown-item">GROK</div>
-                <div class="dropdown-item">GEMINI</div>
+        <div id="threadList">
+            {% for thread in threads %}
+                <div class="chat-thread">
+                    <span class="thread-title">{{ thread.thread_name }}</span>
+                    <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div id="mainContainer">
+        
+        <div id="llmContainer" class="llm-container">
+
+            <!-- Plus button on the far right -->
+            <div id="addColumnContainer">
+                <button id="addColumnBtn" type="button">＋</button>
+                <div id="modelDropdown" class="dropdown">
+                    <div class="dropdown-item">CHATGPT</div>
+                    <div class="dropdown-item">GROK</div>
+                    <div class="dropdown-item">GEMINI</div>
+                </div>
             </div>
+        </div>
+
+        <div class="prompt-input-container">
+            <input 
+                type="text" 
+                id="promptInput"
+                placeholder="Type your prompt here..."
+            >
+            <button id="submitPromptBtn" class="submit-btn">Submit</button>
+        </div>
+
+        <!-- Account links at the bottom -->
+        <div class="account-link-container">
+            <a href="{{ url_for('account') }}" class="account-link">View Account</a>
+            <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
         </div>
     </div>
 
-    <div class="prompt-input-container">
-        <input 
-            type="text" 
-            id="promptInput"
-            placeholder="Type your prompt here..."
-        >
-        <button id="submitPromptBtn" class="submit-btn">Submit</button>
-    </div>
-
-    <!-- Account links at the bottom -->
-    <div class="account-link-container">
-        <a href="{{ url_for('account') }}" class="account-link">View Account</a>
-        <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
-    </div>
 
     <script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
 </body>
