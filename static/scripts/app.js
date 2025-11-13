@@ -14,6 +14,9 @@ const modelDropdown = document.getElementById("modelDropdown");
 const llmContainer = document.getElementById("llmContainer");
 const promptInput = document.getElementById("promptInput");
 const submitPromptBtn = document.getElementById("submitPromptBtn");
+const newChatBtn= document.getElementById("newChat");
+const threadlist= document.getElementById("threadList");
+
 // Click handler: read prompt, and update columns
 submitPromptBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
     const prompt = promptInput.value.trim();
@@ -150,8 +153,11 @@ function createLLMColumn(name) {
     output.appendChild(placeholder);
     col.appendChild(header);
     col.appendChild(output);
-    llmContainer.insertBefore(col, addColumnContainer);
+    llmContainer.appendChild(col);
+    llmContainer.appendChild(addColumnContainer)
 }
+
+
 // Initialize default columns
 defaultLLMs.forEach(createLLMColumn);
 // Show/hide dropdown when + is clicked
@@ -176,4 +182,24 @@ modelDropdown.querySelectorAll(".dropdown-item").forEach(item => {
         modelDropdown.style.display = "none";
     });
 });
-//# sourceMappingURL=app.js.map
+
+//page is reloaded and new thread is started when newChat is clicked
+
+newChatBtn.addEventListener("click", ()=> {
+    window.location.reload();
+});
+
+
+
+// add event listener when thread is clicked
+threadlist.addEventListener("click", (event) => {
+    const currThread = event.target.closest(".chat-thread"); // Get the clicked thread
+    if (currThread) { // If the thread exists
+        const threadId = currThread.dataset.threadId; // Get the thread_id from the data attribute
+        if (threadId) {
+            // Fetch thread history and dynamically load it
+        }
+    }
+
+            
+});

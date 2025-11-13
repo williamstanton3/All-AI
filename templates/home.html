@@ -13,7 +13,7 @@
 
         <div id="threadList">
             {% for thread in threads %}
-                <div class="chat-thread">
+                <div class="chat-thread" data-thread-id="{{ thread.id }}">
                     <span class="thread-title">{{ thread.thread_name }}</span>
                     <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
                 </div>
