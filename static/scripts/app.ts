@@ -1,4 +1,4 @@
-import { fetchChatGPTResponse } from "./chatgptService.js";
+import { fetchLLMResponse, typeWords } from "./aiService.js";
 
 const addColumnBtn = document.getElementById("addColumnBtn") as HTMLButtonElement;
 const addColumnContainer = document.getElementById("addColumnContainer") as HTMLDivElement;
@@ -6,143 +6,139 @@ const modelDropdown = document.getElementById("modelDropdown") as HTMLDivElement
 const llmContainer = document.getElementById("llmContainer") as HTMLDivElement;
 const promptInput = document.getElementById("promptInput") as HTMLInputElement;
 const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
+const mainContainer = document.getElementById("mainContainer") as HTMLDivElement;
 
-// Click handler: read prompt, and update columns
+let promptAlertTimeout: number | undefined;
+
+function showPromptAlert(message: string) {
+    let alert = document.getElementById("promptAlert");
+    if (!alert) {
+        alert = document.createElement("div");
+        alert.id = "promptAlert";
+        alert.className = "prompt-alert";
+        // Insert directly above the prompt input container
+        const pic = document.querySelector(".prompt-input-container");
+        if (pic && pic.parentElement) {
+            pic.parentElement.insertBefore(alert, pic);
+        } else {
+            mainContainer.appendChild(alert);
+        }
+    }
+    alert.textContent = message;
+
+    alert.classList.remove("hide");
+    alert.classList.add("show");
+
+    if (promptAlertTimeout) {
+        clearTimeout(promptAlertTimeout);
+    }
+    promptAlertTimeout = window.setTimeout(() => {
+        alert?.classList.add("hide");
+        // remove after animation
+        setTimeout(() => alert?.remove(), 300);
+    }, 4000);
+}
+
+function getColumnsFor(model: string): HTMLDivElement[] {
+    return Array.from(llmContainer.querySelectorAll<HTMLDivElement>(".llm-column"))
+        .filter(col => col.querySelector<HTMLDivElement>(".column-header")?.dataset.model === model);
+}
+
+function getAllPresentModels(): string[] {
+    const headers = Array.from(llmContainer.querySelectorAll<HTMLDivElement>(".llm-column .column-header"));
+    const models = new Set<string>();
+    headers.forEach(h => {
+        const m = h.dataset.model;
+        if (m) models.add(m);
+    });
+    return Array.from(models);
+}
+
 submitPromptBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
     if (!prompt) return;
 
-    const chatgptColumns = Array.from(
-        llmContainer.querySelectorAll<HTMLDivElement>(".llm-column")
-    ).filter(col => (col.querySelector<HTMLDivElement>(".column-header")?.dataset.model) === "CHATGPT");
+    const presentModels = getAllPresentModels();
+    if (presentModels.length === 0) {
+        showPromptAlert("Please select at least one LLM model");
+        return;
+    }
 
-    // Append a user bubble element (dark box) and show spinner
-    chatgptColumns.forEach(col => {
-        const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
+    presentModels.forEach(model => {
+        getColumnsFor(model).forEach(col => {
+            const out = col.querySelector<HTMLDivElement>(".llm-output")!;
+            const placeholder = out.querySelector(".placeholder");
+            if (placeholder) placeholder.remove();
 
-        // Remove placeholder if present
-        const placeholder = out.querySelector(".placeholder");
-        if (placeholder) placeholder.remove();
+            const userBubble = document.createElement("div");
+            userBubble.className = "user-bubble";
+            userBubble.textContent = prompt;
+            out.appendChild(userBubble);
 
-        // Create user bubble
-        const userBubble = document.createElement("div") as HTMLDivElement;
-        userBubble.className = "user-bubble";
-        userBubble.textContent = prompt;
-        out.appendChild(userBubble);
-
-        // Only add spinner if one isn't already present
-        if (!out.querySelector<HTMLSpanElement>(".loading-spinner")) {
-            const spinner = document.createElement("span") as HTMLSpanElement;
-            spinner.className = "loading-spinner";
-            spinner.setAttribute("role", "status");
-            const sr = document.createElement("span") as HTMLSpanElement;
-            sr.className = "visually-hidden";
-            sr.textContent = "Loading";
-            spinner.appendChild(sr);
-            out.appendChild(spinner);
-        }
+            if (!out.querySelector(".loading-spinner")) {
+                const spinner = document.createElement("span");
+                spinner.className = "loading-spinner";
+                spinner.setAttribute("role", "status");
+                const sr = document.createElement("span");
+                sr.className = "visually-hidden";
+                sr.textContent = "Loading";
+                spinner.appendChild(sr);
+                out.appendChild(spinner);
+            }
+        });
     });
 
-    // Clear input early
     promptInput.value = "";
     promptInput.focus();
 
-    try {
-        const reply = await fetchChatGPTResponse(prompt);
+    const promises = presentModels.map(model =>
+        fetchLLMResponse(model, prompt)
+            .then(reply => ({ model, reply }))
+            .catch(err => ({ model, error: err as Error }))
+    );
 
-        await Promise.all(chatgptColumns.map(async (col) => {
-            const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
+    const results = await Promise.all(promises);
 
-            // Remove spinner if present
+    results.forEach(r => {
+        const columns = getColumnsFor(r.model);
+        columns.forEach(col => {
+            const out = col.querySelector<HTMLDivElement>(".llm-output")!;
             const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
             if (spinner) spinner.remove();
 
-            // Animate the model reply word-by-word (30ms per word)
-            await typeWords(out, reply, 30);
-        }));
-    } catch (err) {
-        chatgptColumns.forEach(col => {
-            const out = col.querySelector<HTMLDivElement>(".llm-output") as HTMLDivElement;
-            const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
-            if (spinner) spinner.remove();
-            const errDiv = document.createElement("div") as HTMLDivElement;
-            errDiv.className = "error";
-            errDiv.textContent = `Error: ${(err as Error).message}`;
-            out.appendChild(errDiv);
+            if ("error" in r) {
+                const errDiv = document.createElement("div");
+                errDiv.className = "error";
+                errDiv.textContent = `Error: ${r.error.message}`;
+                out.appendChild(errDiv);
+            } else {
+                void typeWords(out, r.reply, 30);
+            }
         });
-    }
+    });
 });
 
-// submit on Enter key
-promptInput.addEventListener("keydown", (e) => {
+promptInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
         e.preventDefault();
         submitPromptBtn.click();
     }
 });
 
-// Default LLMs
-const defaultLLMs = ["CHATGPT", "GROK", "GEMINI"];
+const defaultLLMs = ["CHATGPT", "DEEPSEEK", "GEMINI"];
 
-// Creates a typing words animation
-async function typeWords(outContainer: HTMLDivElement, text: string, delay = 30) {
-    const modelDiv = document.createElement("div");
-    modelDiv.className = "model-response";
-    outContainer.appendChild(modelDiv);
-
-    // split keeping whitespace so spacing/newlines are preserved
-    const tokens = text.split(/(\s+)/);
-
-    for (const token of tokens) {
-        if (!token) continue;
-
-        // Pure whitespace (spaces, tabs, newlines)
-        if (/^\s+$/.test(token)) {
-            if (token.includes("\n")) {
-                // Convert newlines to <br> while preserving any surrounding spaces
-                const parts = token.split(/(\n)/);
-                for (const part of parts) {
-                    if (part === "\n") {
-                        modelDiv.appendChild(document.createElement("br"));
-                    } else if (part.length > 0) {
-                        // append actual space characters as text nodes so layout spacing stays correct
-                        modelDiv.appendChild(document.createTextNode(part));
-                    }
-                }
-            } else {
-                // simple spaces/tabs -> append as text node
-                modelDiv.appendChild(document.createTextNode(token));
-            }
-            continue; // don't animate whitespace
-        }
-
-        // Regular word/token -> animate
-        const span = document.createElement("span");
-        span.className = "word";
-        span.textContent = token;
-        modelDiv.appendChild(span);
-
-        // force layout so transition runs
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        span.offsetWidth;
-        span.classList.add("show");
-
-        await new Promise(resolve => setTimeout(resolve, delay));
-    }
-}
-
-
-// Function to create a column
 function createLLMColumn(name: string) {
-    const col = document.createElement("div") as HTMLDivElement;
+    if (llmContainer.querySelector(`.llm-column .column-header[data-model="${name}"]`)) return;
+
+    const col = document.createElement("div");
     col.className = "llm-column";
 
-    const header = document.createElement("div") as HTMLDivElement;
+    const header = document.createElement("div");
     header.className = "column-header";
-    header.textContent = name;
     header.dataset.model = name;
+    header.textContent = name;
 
-    const closeBtn = document.createElement("span") as HTMLSpanElement;
+    const closeBtn = document.createElement("span");
     closeBtn.textContent = "×";
     closeBtn.style.float = "right";
     closeBtn.style.cursor = "pointer";
@@ -150,44 +146,43 @@ function createLLMColumn(name: string) {
     closeBtn.addEventListener("click", () => col.remove());
     header.appendChild(closeBtn);
 
-    const output = document.createElement("div") as HTMLDivElement;
+    const output = document.createElement("div");
     output.className = "llm-output";
-    // Use a placeholder child so we don't rely on textContent for transcript
-    const placeholder = document.createElement("div") as HTMLDivElement;
+    const placeholder = document.createElement("div");
     placeholder.className = "placeholder";
     placeholder.textContent = "Waiting for prompt...";
     output.appendChild(placeholder);
 
     col.appendChild(header);
     col.appendChild(output);
-
     llmContainer.insertBefore(col, addColumnContainer);
+
+    // Remove alert if a model is added
+    const alert = document.getElementById("promptAlert");
+    if (alert) {
+        alert.classList.add("hide");
+        setTimeout(() => alert.remove(), 250);
+    }
 }
 
-// Initialize default columns
 defaultLLMs.forEach(createLLMColumn);
 
-// Show/hide dropdown when + is clicked
-addColumnBtn.addEventListener("click", (e) => {
+addColumnBtn.addEventListener("click", e => {
     e.stopPropagation();
     modelDropdown.style.display = modelDropdown.style.display === "block" ? "none" : "block";
 });
 
-// Hide dropdown when clicking outside
-document.addEventListener("click", (e) => {
+document.addEventListener("click", e => {
     if (!addColumnContainer.contains(e.target as Node)) {
         modelDropdown.style.display = "none";
     }
 });
 
-// Dropdown items: add a new column when clicked
 modelDropdown.querySelectorAll<HTMLDivElement>(".dropdown-item").forEach(item => {
-    item.addEventListener("click", (e) => {
+    item.addEventListener("click", e => {
         e.stopPropagation();
-        const modelName = (item as HTMLDivElement).textContent;
-        if (modelName) {
-            createLLMColumn(modelName);
-        }
+        const modelName = item.textContent?.trim();
+        if (modelName) createLLMColumn(modelName);
         modelDropdown.style.display = "none";
     });
 });

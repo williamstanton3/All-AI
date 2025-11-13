@@ -94,19 +94,19 @@ def gpt():
         return jsonify({"error": str(e)}), 500
 
 def gemini():
-    pass
+    return jsonify({"reply": "This is a Gemini response."}), 200
 
 def claude():
-    pass
+    return jsonify({"reply": "This is a Claude response."}), 200
 
 def bard():
-    pass
+    return jsonify({"reply": "This is a Bard response."}), 200
 
 def llama():
-    pass
+    return jsonify({"reply": "This is a LLaMA response."}), 200
 
 def grok():
-    pass
+    return jsonify({"reply": "This is a Grok response."}), 200
 
 def deepseek():
-    pass
+    return jsonify({"reply": "This is a DeepSeek response."}), 200
