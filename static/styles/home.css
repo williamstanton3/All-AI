@@ -140,14 +140,21 @@ body {
 
 /* ===== LLM COLUMNS ===== */
 .llm-column {
-    flex: 0 0 auto; /* Prevent shrinking and maintain size */
-    width: 300px; /* Fixed width */
+    flex: 0 0 auto;       /* fixed width, no shrinking */
+    width: 300px;    
+    min-width: 100px; 
+    max-width: 400px; 
+
+    height: 650px;        /* FIXED height */
     background-color: rgba(50, 50, 50, 0.8);
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+
+    resize: horizontal;    
+    overflow: hidden;     /* hide overflow outside the column box */
 }
 
 .column-header {
@@ -160,9 +167,9 @@ body {
     background-color: #333;
     border-radius: 6px;
     padding: 10px;
-    min-height: 600px;
+    flex-grow: 1;        /* takes all remaining vertical space */
+    overflow-y: auto;    /* vertical scroll if content is too tall */
     white-space: pre-wrap;
-    overflow-y: auto;
 }
 
 /* ===== PROMPT INPUT AREA ===== */

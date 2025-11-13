@@ -206,5 +206,8 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+<<<<<<< HEAD
+=======
 # Database files
+>>>>>>> 20a494ea0a1ba5d722e5e0cf19c1962f0a626b4a
 users.sqlite3
