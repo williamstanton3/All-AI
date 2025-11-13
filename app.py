@@ -32,7 +32,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}?timeout=10000"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize refactored extensions (sets extensions.db, extensions.client, extensions.pwd_hasher)
-extensions.init_extensions(os.getenv("OPENAI_API_KEY"), pepper_key, app)
+extensions.init_extensions(os.getenv("OPENAI_API_KEY"), os.getenv("GEMINI_API_KEY"), os.getenv("GROK_API_KEY"), os.getenv("CLAUDE_API_KEY"), os.getenv("DEEPSEEK_API_KEY"), pepper_key, app)
 
 # Prepare and connect the LoginManager to this app
 login_manager = LoginManager()
