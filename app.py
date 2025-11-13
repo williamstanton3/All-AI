@@ -193,8 +193,12 @@ def home():
     if 'current_thread_id' in session:
         session.pop('current_thread_id') 
     # Gets all the threads with a SQL Alchemy query
-    current_threads = ChatThread.query.filter_by(user_id=current_user.id).order_by(ChatThread.date_created.desc()).all() # type: ignore
-    
+    current_threads = (
+        db.session.query(ChatThread)
+        .filter_by(user_id=current_user.id)
+        .order_by(ChatThread.date_created.desc())
+        .all()
+    )
     return render_template('home.html', current_user=current_user, threads=current_threads)
 
 @app.get('/')
