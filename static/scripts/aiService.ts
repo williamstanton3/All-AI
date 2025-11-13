@@ -2,10 +2,11 @@ const MODEL_ENDPOINTS: Record<string, string> = {
     CHATGPT: "/api/chatgpt",
     GEMINI: "/api/gemini",
     CLAUDE: "/api/claude",
-    BARD: "/api/bard",
-    LLAMA: "/api/llama",
     GROK: "/api/grok",
-    DEEPSEEK: "/api/deepseek"
+    DEEPSEEK: "/api/deepseek",
+    MISTRAL: "/api/mistral",
+    BERT: "/api/bert",
+    FALCON: "/api/falcon"
 };
 
 export async function fetchLLMResponse(model: string, prompt: string): Promise<string> {

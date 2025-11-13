@@ -75,13 +75,17 @@ def gemini():
 def claude():
     return ai_endpoints.claude()
 
-@app.post('/api/bard')
+@app.post('/api/falcon')
 def bard():
-    return ai_endpoints.bard()
+    return ai_endpoints.falcon()
 
-@app.post('/api/llama')
+@app.post('/api/bert')
 def llama():
-    return ai_endpoints.llama()
+    return ai_endpoints.bert()
+
+@app.post('/api/mistral')
+def mistral():
+    return ai_endpoints.mistral()
 
 @app.post('/api/grok')
 def grok():

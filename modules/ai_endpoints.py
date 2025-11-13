@@ -188,12 +188,6 @@ def claude():
         current_app.logger.exception("Claude SDK request failed")
         return jsonify({"error": str(e)}), 502
 
-def bard():
-    return jsonify({"reply": "This is a Bard response."}), 200
-
-def llama():
-    return jsonify({"reply": "This is a LLaMA response."}), 200
-
 def grok():
     data = request.get_json(force=True)
     prompt = data.get("prompt", "").strip()
@@ -299,3 +293,12 @@ def deepseek():
     except Exception as e:
         current_app.logger.exception("DeepSeek SDK request failed")
         return jsonify({"error": str(e)}), 502
+
+def falcon():
+    return jsonify({"reply": "This is a Falcon response."}), 200
+
+def mistral():
+    return jsonify({"reply": "This is a Mistral response."}), 200
+
+def bert():
+    return jsonify({"reply": "This is a BERT response."}), 200
