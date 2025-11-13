@@ -290,8 +290,25 @@ def new_thread():
     session.pop('current_thread_id', None) # Remove current thread from session
     return jsonify({"status": "new thread created"}), 200 
 
-# @app.get('/api/thread/<int:thread_id>')
-# def switch_thread(thread_id: int):
+@app.get('/api/thread/<int:thread_id>')
+def switch_thread(thread_id: int):
+    # sets current threadID to one that was clicked
+    session['current_thread_id']= thread_id
+    
+    # SQL call to get ALL history entries
+    history_entries= ChatHistory.query.filter_by(thread_id=thread_id).order_by(ChatHistory.id).all()
+    
+    history = [
+        {
+            "user_input": entry.user_input,
+            "model_name": entry.model_name,
+            "model_response": entry.model_response,
+            "date_saved": entry.date_saved.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for entry in history_entries
+    ]
+    
+    return jsonify({"history": history})
     
     
 # # -------------------
