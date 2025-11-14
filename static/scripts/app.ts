@@ -91,31 +91,36 @@ submitPromptBtn.addEventListener("click", async () => {
     promptInput.value = "";
     promptInput.focus();
 
-    const promises = presentModels.map(model =>
-        fetchLLMResponse(model, prompt)
-            .then(reply => ({ model, reply }))
-            .catch(err => ({ model, error: err as Error }))
-    );
+    // Start independent async tasks per model so each renders as soon as it returns
+    for (const model of presentModels) {
+        await (async (m) => {
+            try {
+                const reply = await fetchLLMResponse(m, prompt);
+                const columns = getColumnsFor(m);
+                columns.forEach(col => {
+                    const out = col.querySelector<HTMLDivElement>(".llm-output")!;
+                    const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+                    if (spinner) spinner.remove();
 
-    const results = await Promise.all(promises);
+                    // start typing animation asynchronously for each column
+                    void typeWords(out, reply, 30);
+                });
+            } catch (err) {
+                const error = err as Error;
+                const columns = getColumnsFor(m);
+                columns.forEach(col => {
+                    const out = col.querySelector<HTMLDivElement>(".llm-output")!;
+                    const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+                    if (spinner) spinner.remove();
 
-    results.forEach(r => {
-        const columns = getColumnsFor(r.model);
-        columns.forEach(col => {
-            const out = col.querySelector<HTMLDivElement>(".llm-output")!;
-            const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
-            if (spinner) spinner.remove();
-
-            if ("error" in r) {
-                const errDiv = document.createElement("div");
-                errDiv.className = "error";
-                errDiv.textContent = `Error: ${r.error.message}`;
-                out.appendChild(errDiv);
-            } else {
-                void typeWords(out, r.reply, 30);
+                    const errDiv = document.createElement("div");
+                    errDiv.className = "error";
+                    errDiv.textContent = `Error: ${error.message}`;
+                    out.appendChild(errDiv);
+                });
             }
-        });
-    });
+        })(model);
+    }
 });
 
 promptInput.addEventListener("keydown", e => {

@@ -64,34 +64,42 @@ with app.app_context():
 # -----------------------
 
 @app.post('/api/chatgpt')
+@login_required
 def chatgpt():
     return ai_endpoints.gpt()
 
 @app.post('/api/gemini')
+@login_required
 def gemini():
     return ai_endpoints.gemini()
 
 @app.post('/api/claude')
+@login_required
 def claude():
     return ai_endpoints.claude()
 
 @app.post('/api/falcon')
+@login_required
 def bard():
     return ai_endpoints.falcon()
 
 @app.post('/api/bert')
+@login_required
 def llama():
     return ai_endpoints.bert()
 
 @app.post('/api/mistral')
+@login_required
 def mistral():
     return ai_endpoints.mistral()
 
 @app.post('/api/grok')
+@login_required
 def grok():
     return ai_endpoints.grok()
 
 @app.post('/api/deepseek')
+@login_required
 def deepseek():
     return ai_endpoints.deepseek()
 
@@ -147,10 +155,12 @@ def post_login():
         return redirect(url_for('get_login'))
 
 @app.get('/account')
+@login_required
 def account():
     return render_template('account.html', current_user=current_user)
 
 @app.get('/home')
+@login_required
 def home():
     # Clears current thread to make a new one when refreshing home page
     if 'current_thread_id' in session:
@@ -169,11 +179,13 @@ def default_route():
     return redirect(url_for('get_login'))
 
 @app.post('/api/new_thread')
+@login_required
 def new_thread():
     session.pop('current_thread_id', None) # Remove current thread from session
     return jsonify({"status": "new thread created"}), 200
 
 @app.get('/api/thread/<int:thread_id>')
+@login_required
 def switch_thread(thread_id: int):
     # sets current threadID to one that was clicked
     session['current_thread_id']= thread_id
