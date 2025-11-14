@@ -8,7 +8,15 @@ const promptInput = document.getElementById("promptInput") as HTMLInputElement;
 const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
 const mainContainer = document.getElementById("mainContainer") as HTMLDivElement;
 
+const userStatusInput = document.getElementById("userStatus") as HTMLInputElement | null;
+const userStatus = userStatusInput?.value ?? "Free";
+const MAX_FREE_MODELS = 3;
+
 let promptAlertTimeout: number | undefined;
+
+function getMaxModels(): number {
+    return userStatus === "Free" ? MAX_FREE_MODELS : Infinity;
+}
 
 function showPromptAlert(message: string) {
     let alert = document.getElementById("promptAlert");
@@ -135,6 +143,13 @@ const defaultLLMs = ["CHATGPT", "DEEPSEEK", "GEMINI"];
 function createLLMColumn(name: string) {
     if (llmContainer.querySelector(`.llm-column .column-header[data-model="${name}"]`)) return;
 
+    const currentCount = getAllPresentModels().length;
+    const max = getMaxModels();
+    if (currentCount >= max) {
+        showPromptAlert(`Free accounts are limited to ${MAX_FREE_MODELS} models. Upgrade to Premium for more.`);
+        return;
+    }
+
     const col = document.createElement("div");
     col.className = "llm-column";
 
@@ -174,6 +189,12 @@ defaultLLMs.forEach(createLLMColumn);
 
 addColumnBtn.addEventListener("click", e => {
     e.stopPropagation();
+    const currentCount = getAllPresentModels().length;
+    const max = getMaxModels();
+    if (currentCount >= max) {
+        showPromptAlert(`Free accounts are limited to ${MAX_FREE_MODELS} models. Upgrade to Premium for more.`);
+        return;
+    }
     modelDropdown.style.display = modelDropdown.style.display === "block" ? "none" : "block";
 });
 
