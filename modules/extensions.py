@@ -16,10 +16,6 @@ deepseek_client = None
 pwd_hasher = None
 
 def init_extensions(openai_key: str, gemini_key: str, grok_key: str, claude_key: str, deepseek_key: str, pepper: bytes, flask_app: Flask) -> None:
-    """
-    Initialize extension instances that require the Flask app or runtime secrets.
-    Call this from `app.py` after creating `app` and setting config.
-    """
     global gpt_client, gemini_client, grok_client, claude_client, deepseek_client, pwd_hasher
     if openai_key:
         gpt_client = OpenAI(api_key=openai_key)

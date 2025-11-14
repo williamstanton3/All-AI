@@ -1,14 +1,11 @@
 "use strict";
-// Select all elements with class "flash"
 const flashes = document.querySelectorAll('.flash');
 flashes.forEach((flash) => {
-    // Wait 3 seconds
     setTimeout(() => {
-        flash.style.opacity = '0'; // fade out
-        // Remove from DOM after transition
+        flash.style.opacity = '0';
         setTimeout(() => {
             flash.remove();
-        }, 500); // match CSS transition duration
-    }, 3000); // show for 3 seconds
+        }, 500);
+    }, 3000);
 });
 //# sourceMappingURL=login.js.map

@@ -9,14 +9,12 @@ from datetime import datetime
 from flask_login import LoginManager, login_required
 from flask_login import login_user, logout_user, current_user
 
-# Refactored modules
 import modules.extensions as extensions
 from modules.database_classes import User, ChatThread, ChatHistory
 import modules.ai_endpoints as ai_endpoints
 
 from loginforms import RegisterForm, LoginForm
 
-# Identify necessary files
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 dbfile = os.path.join(scriptdir, "users.sqlite3")
 pepfile = os.path.join(scriptdir, "pepper.bin")
@@ -24,14 +22,12 @@ pepfile = os.path.join(scriptdir, "pepper.bin")
 with open(pepfile, 'rb') as fin:
     pepper_key = fin.read()
 
-# configure the flask application
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'correcthorsebatterystaple'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}?timeout=10000"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize refactored extensions (sets extensions.db, extensions.client, extensions.pwd_hasher)
 extensions.init_extensions(os.getenv("OPENAI_API_KEY"), os.getenv("GEMINI_API_KEY"), os.getenv("GROK_API_KEY"), os.getenv("CLAUDE_API_KEY"), os.getenv("DEEPSEEK_API_KEY"), pepper_key, app)
 
 # Prepare and connect the LoginManager to this app
@@ -40,13 +36,11 @@ login_manager.init_app(app)
 login_manager.login_view = 'get_login' # type: ignore
 login_manager.session_protection = "strong"
 
-# function that takes a user id as a string and returns that user
 @login_manager.user_loader
-def load_user(uid: str) -> User|None:
+def load_user(uid: str) -> User | None:
     return get_user(uid=int(uid))
 
-# define a helper function that loads users based on id or email
-def get_user(uid: int|None = None, email: str|None = None) -> User|None:
+def get_user(uid: int|None = None, email: str|None = None) -> User | None:
     query: Select[Tuple[User]] = extensions.db.select(User)
     if uid is not None:
         query = query.filter_by(id=uid)
@@ -181,12 +175,13 @@ def default_route():
 @app.post('/api/new_thread')
 @login_required
 def new_thread():
-    session.pop('current_thread_id', None) # Remove current thread from session
+    session.pop('current_thread_id', None)
     return jsonify({"status": "new thread created"}), 200
 
 @app.get('/api/thread/<int:thread_id>')
 @login_required
 def switch_thread(thread_id: int):
+
     # sets current threadID to one that was clicked
     session['current_thread_id']= thread_id
 

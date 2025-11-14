@@ -24,7 +24,6 @@ function showPromptAlert(message: string) {
         alert = document.createElement("div");
         alert.id = "promptAlert";
         alert.className = "prompt-alert";
-        // Insert directly above the prompt input container
         const pic = document.querySelector(".prompt-input-container");
         if (pic && pic.parentElement) {
             pic.parentElement.insertBefore(alert, pic);
@@ -42,7 +41,6 @@ function showPromptAlert(message: string) {
     }
     promptAlertTimeout = window.setTimeout(() => {
         alert?.classList.add("hide");
-        // remove after animation
         setTimeout(() => alert?.remove(), 300);
     }, 4000);
 }
@@ -99,7 +97,6 @@ submitPromptBtn.addEventListener("click", async () => {
     promptInput.value = "";
     promptInput.focus();
 
-    // Start independent async tasks per model so each renders as soon as it returns
     for (const model of presentModels) {
         await (async (m) => {
             try {
@@ -177,7 +174,6 @@ function createLLMColumn(name: string) {
     col.appendChild(output);
     llmContainer.insertBefore(col, addColumnContainer);
 
-    // Remove alert if a model is added
     const alert = document.getElementById("promptAlert");
     if (alert) {
         alert.classList.add("hide");
