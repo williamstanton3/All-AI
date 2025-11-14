@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms.fields import PasswordField, SubmitField, EmailField, BooleanField
 from wtforms.validators import InputRequired, Email, EqualTo, Length
 
-# define our own FlaskForm subclass for our form
 class RegisterForm(FlaskForm):
     email = EmailField("Email: ", validators=[InputRequired()])
     password = PasswordField("Password: ", 
@@ -16,8 +15,6 @@ class RegisterForm(FlaskForm):
     status= BooleanField("Premium Account?")
     submit = SubmitField("Register")
 
-
-# define our own FlaskForm subclass for our form
 class LoginForm(FlaskForm):
     email = EmailField("Email: ", validators=[InputRequired()])
     password = PasswordField("Password: ", 

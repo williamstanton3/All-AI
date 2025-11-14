@@ -34,7 +34,6 @@ def _save_history(thread_id: int, prompt: str, model_name: str, reply: str) -> N
     db.session.commit()
 
 def gpt():
-    # existing GPT implementation (unchanged)...
     data = request.get_json(force=True)
     prompt = data.get("prompt", "").strip()
     if not prompt:
@@ -83,7 +82,6 @@ def gpt():
         current_app.logger.exception("OpenAI request failed")
         return jsonify({"error": str(e)}), 500
 
-# python
 def gemini():
     data = request.get_json(force=True)
     prompt = data.get("prompt", "").strip()
@@ -106,7 +104,6 @@ def gemini():
     model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
     try:
         resp = client.models.generate_content(model=model, contents=prompt)
-        # normalize response shapes (SDK may expose .text, .output or return a dict)
         reply = getattr(resp, "text", None) or getattr(resp, "output", None)
         if reply is None:
             try:
@@ -153,7 +150,6 @@ def claude():
         messages = [{"role": "user", "content": prompt}]
         resp = client.messages.create(model=model, max_tokens=max_tokens, messages=messages)
 
-        # Helper to extract text from various shapes
         def _text_of(item):
             if item is None:
                 return ""
@@ -164,14 +160,12 @@ def claude():
                 text = item.get("text") or item.get("content")
             return str(text) if text is not None else str(item)
 
-        # Prefer direct attributes, fall back to dict keys
         reply_candidate = getattr(resp, "content", None) or getattr(resp, "text", None)
         if reply_candidate is None and isinstance(resp, dict):
             reply_candidate = resp.get("content") or resp.get("text")
         if reply_candidate is None:
             reply_candidate = resp
 
-        # Normalize lists and objects to a single string
         if isinstance(reply_candidate, list):
             parts = [_text_of(it) for it in reply_candidate]
             reply = "\n".join([p for p in parts if p]).strip()
@@ -246,7 +240,6 @@ def deepseek():
     model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
     try:
-        # Build messages with a small system prompt and recent history (last 2 entries)
         messages = [{"role": "system", "content": "You are a helpful assistant"}]
         thread_id = session.get('current_thread_id')
         if thread_id is not None:

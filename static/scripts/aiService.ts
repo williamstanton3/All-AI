@@ -37,7 +37,6 @@ export async function fetchLLMResponse(model: string, prompt: string): Promise<s
     return data.reply;
 }
 
-// Keeps existing typing animation
 export async function typeWords(outContainer: HTMLDivElement, text: string, delay = 30) {
     const modelDiv = document.createElement("div");
     modelDiv.className = "model-response";
