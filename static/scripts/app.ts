@@ -60,7 +60,7 @@ function getAllPresentModels(): string[] {
     return Array.from(models);
 }
 
-submitPromptBtn.addEventListener("click", async () => {
+submitPromptBtn.addEventListener("click", () => {
     const prompt = promptInput.value.trim();
     if (!prompt) return;
 
@@ -97,35 +97,32 @@ submitPromptBtn.addEventListener("click", async () => {
     promptInput.value = "";
     promptInput.focus();
 
-    for (const model of presentModels) {
-        await (async (m) => {
-            try {
-                const reply = await fetchLLMResponse(m, prompt);
-                const columns = getColumnsFor(m);
-                columns.forEach(col => {
-                    const out = col.querySelector<HTMLDivElement>(".llm-output")!;
-                    const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
-                    if (spinner) spinner.remove();
+    presentModels.forEach(model => {
+        const p = fetchLLMResponse(model, prompt);
+        p.then(reply => {
+            const columns = getColumnsFor(model);
+            columns.forEach(col => {
+                const out = col.querySelector<HTMLDivElement>(".llm-output")!;
+                const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+                if (spinner) spinner.remove();
 
-                    // start typing animation asynchronously for each column
-                    void typeWords(out, reply, 30);
-                });
-            } catch (err) {
-                const error = err as Error;
-                const columns = getColumnsFor(m);
-                columns.forEach(col => {
-                    const out = col.querySelector<HTMLDivElement>(".llm-output")!;
-                    const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
-                    if (spinner) spinner.remove();
+                void typeWords(out, reply, 30);
+            });
+        }).catch(err => {
+            const error = err as Error;
+            const columns = getColumnsFor(model);
+            columns.forEach(col => {
+                const out = col.querySelector<HTMLDivElement>(".llm-output")!;
+                const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
+                if (spinner) spinner.remove();
 
-                    const errDiv = document.createElement("div");
-                    errDiv.className = "error";
-                    errDiv.textContent = `Error: ${error.message}`;
-                    out.appendChild(errDiv);
-                });
-            }
-        })(model);
-    }
+                const errDiv = document.createElement("div");
+                errDiv.className = "error";
+                errDiv.textContent = `Error: ${error.message}`;
+                out.appendChild(errDiv);
+            });
+        });
+    });
 });
 
 promptInput.addEventListener("keydown", e => {
