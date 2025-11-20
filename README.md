@@ -7,7 +7,7 @@ A website where a user can enter a prompt and simultaneously get responses from 
 
     The following Python packages are required:
 
-    <code>SQLAlchemy Flask Flask-SQLAlchemy Flask-Login openai google-genai xai-sdk anthropic</code>
+    <code>python-dotenv SQLAlchemy Flask Flask-SQLAlchemy Flask-Login flask_wtf openai google-genai xai-sdk anthropic</code>
 
 
 * Typescript compiler (any recent version should be sufficient)
