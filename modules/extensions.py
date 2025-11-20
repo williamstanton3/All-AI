@@ -1,37 +1,58 @@
 from __future__ import annotations
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from openai import OpenAI
-from google import genai
-from xai_sdk import Client
-from anthropic import Anthropic
+
 from hashing_examples import UpdatedHasher
+from modules import dbms
+from modules.llm_client import *
 
-db = SQLAlchemy()
-gpt_client = None
-gemini_client = None
-grok_client = None
-claude_client = None
-deepseek_client = None
-pwd_hasher = None
+#from llms import gpt
 
-def init_extensions(openai_key: str, gemini_key: str, grok_key: str, claude_key: str, deepseek_key: str, pepper: bytes, flask_app: Flask) -> None:
+
+db = dbms.db
+gpt_client: GPTClient|None = None
+gemini_client: GeminiClient|None = None
+grok_client: GrokClient|None = None
+claude_client: ClaudeClient|None = None
+deepseek_client: DeepseekClient|None = None
+pwd_hasher: UpdatedHasher|None = None
+
+def init_extensions(
+    claude_model: str,
+    claude_key: str,
+    claude_max_tokens: int,
+    claude_temperature: float,
+
+    deepseek_model: str,
+    deepseek_key: str,
+    deepseek_max_tokens: int,
+    deepseek_temperature: float,
+
+    gemini_model: str,
+    gemini_key: str,
+    gemini_max_tokens: int,
+    gemini_temperature: float,
+
+    openai_model: str,
+    openai_key: str,
+    openai_max_tokens: int,
+    openai_temperature: float,
+
+    grok_model: str,
+    grok_key: str,
+    grok_max_tokens: int,
+    grok_temperature: float,
+
+    pepper: bytes, 
+    flask_app: Flask
+    ) -> None:
+    
     global gpt_client, gemini_client, grok_client, claude_client, deepseek_client, pwd_hasher
-    if openai_key:
-        gpt_client = OpenAI(api_key=openai_key)
-
-    # gemini_key argument takes precedence, fall back to env var
-    if gemini_key:
-        gemini_client = genai.Client(api_key=gemini_key)
-
-    if grok_key:
-        grok_client = Client(api_key=grok_key)
-
-    if claude_key:
-        claude_client = Anthropic(api_key=claude_key)
-
-    if deepseek_key:
-        deepseek_client = OpenAI(api_key=deepseek_key, base_url="https://api.deepseek.com")
-
+    
+    gpt_client = GPTClient(openai_model, openai_max_tokens, openai_temperature, openai_key)
+    gemini_client = GeminiClient(gemini_model, gemini_max_tokens, gemini_temperature, gemini_key)
+    grok_client = GrokClient(grok_model, grok_max_tokens, grok_temperature, grok_key)
+    claude_client = ClaudeClient(claude_model, claude_max_tokens, claude_temperature, claude_key)
+    deepseek_client = DeepseekClient(deepseek_model, deepseek_max_tokens, deepseek_temperature, deepseek_key)
     pwd_hasher = UpdatedHasher(pepper)
     db.init_app(flask_app)

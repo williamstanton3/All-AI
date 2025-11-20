@@ -10,7 +10,7 @@ from flask_login import LoginManager, login_required
 from flask_login import login_user, logout_user, current_user
 
 import modules.extensions as extensions
-from modules.database_classes import User, ChatThread, ChatHistory
+from modules.dbms import User, ChatThread, ChatHistory
 import modules.ai_endpoints as ai_endpoints
 
 from loginforms import RegisterForm, LoginForm
@@ -28,7 +28,34 @@ app.config['SECRET_KEY'] = 'correcthorsebatterystaple'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}?timeout=10000"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-extensions.init_extensions(os.getenv("OPENAI_API_KEY"), os.getenv("GEMINI_API_KEY"), os.getenv("GROK_API_KEY"), os.getenv("CLAUDE_API_KEY"), os.getenv("DEEPSEEK_API_KEY"), pepper_key, app)
+extensions.init_extensions(
+    claude_model       = os.getenv("CLAUDE_MODEL", "claude-3-haiku-20240307"),
+    claude_key         = os.getenv("CLAUDE_API_KEY"),
+    claude_max_tokens  = int(os.getenv("CLAUDE_MAX_TOKENS", "500")),
+    claude_temperature = float(os.getenv("CLAUDE_TEMPERATURE", "0.2")),
+
+    deepseek_model      = os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+    deepseek_key        = os.getenv("DEEPSEEK_API_KEY"),
+    deepseek_max_tokens = int(os.getenv("DEEPSEEK_MAX_TOKENS", "120")),
+    deepseek_temperature= float(os.getenv("DEEPSEEK_TEMPERATURE", "0.2")),
+
+    gemini_model       = os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+    gemini_key         = os.getenv("GEMINI_API_KEY"),
+    gemini_max_tokens  = int(os.getenv("GEMINI_MAX_TOKENS", "120")),
+    gemini_temperature = float(os.getenv("GEMINI_TEMPERATURE", "0.2")),
+
+    openai_model       = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
+    openai_key         = os.getenv("OPENAI_API_KEY"),
+    openai_max_tokens  = int(os.getenv("OPENAI_MAX_TOKENS", "120")),
+    openai_temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.2")),
+
+    grok_model         = os.getenv("GROK_MODEL", "grok-3-mini"),
+    grok_key           = os.getenv("GROK_API_KEY"),
+    grok_max_tokens    = int(os.getenv("GROK_MAX_TOKENS", "120")),
+    grok_temperature   = float(os.getenv("GROK_TEMPERATURE", "0.2")),
+
+    pepper=pepper_key, 
+    flask_app=app)
 
 # Prepare and connect the LoginManager to this app
 login_manager = LoginManager()

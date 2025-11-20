@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>LLM Comparator - Home</title>
@@ -7,24 +8,28 @@
 </head>
 
 <body>
+    <div class="account-link-container">
+        <a href="{{ url_for('account') }}" class="account-link">View Account</a>
+        <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
+    </div>
 
-    
     <div id="historySidebar">
         <h3 id="chatHistory">Chat History</h3>
         <button id="newChat">New Chat</button>
 
         <div id="threadList">
             {% for thread in threads %}
-                <div class="chat-thread" data-thread-id="{{ thread.id }}">
-                    <span class="thread-title">{{ thread.thread_name }}</span>
-                    <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
-                </div>
+            <div class="chat-thread" data-thread-id="{{ thread.id }}">
+                <span class="thread-title">{{ thread.thread_name }}</span>
+                <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
+            </div>
             {% endfor %}
         </div>
     </div>
+
     <div id="mainContainer">
         <input type="hidden" id="userStatus" value="{{ current_user.status }}">
-        
+
         <div id="llmContainer" class="llm-container">
 
             <div id="addColumnContainer">
@@ -43,21 +48,12 @@
         </div>
 
         <div class="prompt-input-container">
-            <input 
-                type="text" 
-                id="promptInput"
-                placeholder="Type your prompt here..."
-            >
+            <input type="text" id="promptInput" placeholder="Type your prompt here...">
             <button id="submitPromptBtn" class="submit-btn">Submit</button>
-        </div>
-
-        <div class="account-link-container">
-            <a href="{{ url_for('account') }}" class="account-link">View Account</a>
-            <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
         </div>
     </div>
 
-
-    <script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
+    <script type="module" src="{{ url_for('static', filename='scripts/app.js') }}"></script>
 </body>
+
 </html>
