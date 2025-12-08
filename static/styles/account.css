@@ -50,3 +50,29 @@ body {
 .home-link:hover {
     color: #aaa;
 }
+
+@media (max-width: 600px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .account-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .info-row {
+        font-size: 16px;
+    }
+
+    .home-link-container {
+        bottom: 10px;
+    }
+
+    .home-link {
+        font-size: 14px;
+    }
+}

@@ -8,11 +8,38 @@ const promptInput = document.getElementById("promptInput") as HTMLInputElement;
 const submitPromptBtn = document.getElementById("submitPromptBtn") as HTMLButtonElement;
 const mainContainer = document.getElementById("mainContainer") as HTMLDivElement;
 
+// Sidebar Elements
+const sidebarToggle = document.getElementById("sidebarToggle") as HTMLButtonElement;
+const mobileOverlay = document.getElementById("mobileOverlay") as HTMLDivElement;
+
 const userStatusInput = document.getElementById("userStatus") as HTMLInputElement | null;
 const userStatus = userStatusInput?.value ?? "Free";
 const MAX_FREE_MODELS = 3;
 
 let promptAlertTimeout: number | undefined;
+
+// --- Sidebar Logic ---
+sidebarToggle.addEventListener("click", () => {
+    // Check if we are in mobile view
+    if (window.innerWidth <= 768) {
+        document.body.classList.toggle("sidebar-mobile-open");
+    } else {
+        document.body.classList.toggle("sidebar-collapsed");
+    }
+});
+
+// Close mobile sidebar when clicking overlay
+mobileOverlay.addEventListener("click", () => {
+    document.body.classList.remove("sidebar-mobile-open");
+});
+
+document.querySelectorAll(".chat-thread").forEach(thread => {
+    thread.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            document.body.classList.remove("sidebar-mobile-open");
+        }
+    });
+});
 
 function getMaxModels(): number {
     return userStatus === "Free" ? MAX_FREE_MODELS : Infinity;
@@ -106,7 +133,8 @@ submitPromptBtn.addEventListener("click", () => {
                 const spinner = out.querySelector<HTMLSpanElement>(".loading-spinner");
                 if (spinner) spinner.remove();
 
-                void typeWords(out, reply, 30);
+                // Now uses the updated typeWords function for markdown typing
+                typeWords(out, reply);
             });
         }).catch(err => {
             const error = err as Error;

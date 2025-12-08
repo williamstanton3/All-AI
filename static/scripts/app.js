@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var _a;
 import { fetchLLMResponse, typeWords } from "./aiService.js";
 const addColumnBtn = document.getElementById("addColumnBtn");
@@ -16,10 +7,34 @@ const llmContainer = document.getElementById("llmContainer");
 const promptInput = document.getElementById("promptInput");
 const submitPromptBtn = document.getElementById("submitPromptBtn");
 const mainContainer = document.getElementById("mainContainer");
+// Sidebar Elements
+const sidebarToggle = document.getElementById("sidebarToggle");
+const mobileOverlay = document.getElementById("mobileOverlay");
 const userStatusInput = document.getElementById("userStatus");
 const userStatus = (_a = userStatusInput === null || userStatusInput === void 0 ? void 0 : userStatusInput.value) !== null && _a !== void 0 ? _a : "Free";
 const MAX_FREE_MODELS = 3;
 let promptAlertTimeout;
+// --- Sidebar Logic ---
+sidebarToggle.addEventListener("click", () => {
+    // Check if we are in mobile view
+    if (window.innerWidth <= 768) {
+        document.body.classList.toggle("sidebar-mobile-open");
+    }
+    else {
+        document.body.classList.toggle("sidebar-collapsed");
+    }
+});
+// Close mobile sidebar when clicking overlay
+mobileOverlay.addEventListener("click", () => {
+    document.body.classList.remove("sidebar-mobile-open");
+});
+document.querySelectorAll(".chat-thread").forEach(thread => {
+    thread.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            document.body.classList.remove("sidebar-mobile-open");
+        }
+    });
+});
 function getMaxModels() {
     return userStatus === "Free" ? MAX_FREE_MODELS : Infinity;
 }
@@ -62,7 +77,7 @@ function getAllPresentModels() {
     });
     return Array.from(models);
 }
-submitPromptBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+submitPromptBtn.addEventListener("click", () => {
     const prompt = promptInput.value.trim();
     if (!prompt)
         return;
@@ -95,37 +110,34 @@ submitPromptBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0
     });
     promptInput.value = "";
     promptInput.focus();
-    for (const model of presentModels) {
-        yield ((m) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const reply = yield fetchLLMResponse(m, prompt);
-                const columns = getColumnsFor(m);
-                columns.forEach(col => {
-                    const out = col.querySelector(".llm-output");
-                    const spinner = out.querySelector(".loading-spinner");
-                    if (spinner)
-                        spinner.remove();
-                    // start typing animation asynchronously for each column
-                    void typeWords(out, reply, 30);
-                });
-            }
-            catch (err) {
-                const error = err;
-                const columns = getColumnsFor(m);
-                columns.forEach(col => {
-                    const out = col.querySelector(".llm-output");
-                    const spinner = out.querySelector(".loading-spinner");
-                    if (spinner)
-                        spinner.remove();
-                    const errDiv = document.createElement("div");
-                    errDiv.className = "error";
-                    errDiv.textContent = `Error: ${error.message}`;
-                    out.appendChild(errDiv);
-                });
-            }
-        }))(model);
-    }
-}));
+    presentModels.forEach(model => {
+        const p = fetchLLMResponse(model, prompt);
+        p.then(reply => {
+            const columns = getColumnsFor(model);
+            columns.forEach(col => {
+                const out = col.querySelector(".llm-output");
+                const spinner = out.querySelector(".loading-spinner");
+                if (spinner)
+                    spinner.remove();
+                // Now uses the updated typeWords function for markdown typing
+                typeWords(out, reply);
+            });
+        }).catch(err => {
+            const error = err;
+            const columns = getColumnsFor(model);
+            columns.forEach(col => {
+                const out = col.querySelector(".llm-output");
+                const spinner = out.querySelector(".loading-spinner");
+                if (spinner)
+                    spinner.remove();
+                const errDiv = document.createElement("div");
+                errDiv.className = "error";
+                errDiv.textContent = `Error: ${error.message}`;
+                out.appendChild(errDiv);
+            });
+        });
+    });
+});
 promptInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
         e.preventDefault();

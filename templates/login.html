@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
 </head>
@@ -31,6 +31,6 @@
     </div>
 
     <!-- Include compiled TypeScript -->
-    <script type="module" src="{{ url_for('static', filename='scripts/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/login.js') }}" type="module"></script>
 </body>
 </html>
