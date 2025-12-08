@@ -1,59 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Comparator - Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">
 </head>
 
 <body>
+<div id="mobileOverlay"></div>
+
+<div id="historySidebar">
+    <h3 id="chatHistory">Chat History</h3>
+    <button id="newChat">New Chat</button>
+
+    <div id="threadList">
+        {% for thread in threads %}
+        <div class="chat-thread" data-thread-id="{{ thread.id }}">
+            <span class="thread-title">{{ thread.thread_name }}</span>
+            <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="mainContainer">
+    <button id="sidebarToggle" aria-label="Toggle Sidebar">☰</button>
+
+    <input type="hidden" id="userStatus" value="{{ current_user.status }}">
+
+    <div id="llmContainer" class="llm-container">
+
+        <div id="addColumnContainer">
+            <button id="addColumnBtn" type="button">＋</button>
+            <div id="modelDropdown" class="dropdown">
+                <div class="dropdown-item">CHATGPT</div>
+                <div class="dropdown-item">GROK</div>
+                <div class="dropdown-item">GEMINI</div>
+                <div class="dropdown-item">CLAUDE</div>
+                <div class="dropdown-item">DEEPSEEK</div>
+                <div class="dropdown-item">MISTRAL</div>
+                <div class="dropdown-item">BERT</div>
+                <div class="dropdown-item">FALCON</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="prompt-input-container">
+        <input
+                type="text"
+                id="promptInput"
+                placeholder="Type your prompt here..."
+        >
+        <button id="submitPromptBtn" class="submit-btn">Submit</button>
+    </div>
+
     <div class="account-link-container">
         <a href="{{ url_for('account') }}" class="account-link">View Account</a>
         <a href="{{ url_for('get_login') }}" class="logout-link">Log Out</a>
     </div>
+</div>
 
-    <div id="historySidebar">
-        <h3 id="chatHistory">Chat History</h3>
-        <button id="newChat">New Chat</button>
-
-        <div id="threadList">
-            {% for thread in threads %}
-            <div class="chat-thread" data-thread-id="{{ thread.id }}">
-                <span class="thread-title">{{ thread.thread_name }}</span>
-                <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div id="mainContainer">
-        <input type="hidden" id="userStatus" value="{{ current_user.status }}">
-
-        <div id="llmContainer" class="llm-container">
-
-            <div id="addColumnContainer">
-                <button id="addColumnBtn" type="button">＋</button>
-                <div id="modelDropdown" class="dropdown">
-                    <div class="dropdown-item">CHATGPT</div>
-                    <div class="dropdown-item">GROK</div>
-                    <div class="dropdown-item">GEMINI</div>
-                    <div class="dropdown-item">CLAUDE</div>
-                    <div class="dropdown-item">DEEPSEEK</div>
-                    <div class="dropdown-item">MISTRAL</div>
-                    <div class="dropdown-item">BERT</div>
-                    <div class="dropdown-item">FALCON</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="prompt-input-container">
-            <input type="text" id="promptInput" placeholder="Type your prompt here...">
-            <button id="submitPromptBtn" class="submit-btn">Submit</button>
-        </div>
-    </div>
-
-    <script type="module" src="{{ url_for('static', filename='scripts/app.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/app.js') }}" type="module"></script>
 </body>
-
 </html>
