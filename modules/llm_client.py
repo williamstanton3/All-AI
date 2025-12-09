@@ -5,7 +5,8 @@ from google import genai
 import anthropic
 import xai_sdk
 from xai_sdk import chat as xai_chat
-
+from mistralai import Mistral
+from together import Together
 
 class LLMClient(ABC):
     def __init__(self, model: str, max_tokens: int, temperature: float):
@@ -44,7 +45,6 @@ class GeminiClient(LLMClient):
 
         full_prompt = "\n".join(parts)
 
-        # use the sync API, *not* the aio version
         resp = self.api.models.generate_content(  # type: ignore[union-attr]
             model=self.model,
             contents=full_prompt,
@@ -143,3 +143,86 @@ class DeepseekClient(LLMClient):
             stream=False,
         )
         return resp.choices[0].message.content
+
+
+class MistralClient(LLMClient):
+    def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
+        super().__init__(model, max_tokens, temperature)
+        self.name = "Mistral"
+        self.api = Mistral(api_key=key) if key else None
+
+    def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
+        messages: list[dict] = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        for user_msg, assistant_msg in history:
+            messages.append({"role": "user", "content": user_msg})
+            messages.append({"role": "assistant", "content": assistant_msg})
+
+        messages.append({"role": "user", "content": user_prompt})
+
+        resp = self.api.chat.complete(  # type: ignore[union-attr]
+            model=self.model,
+            messages=messages,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
+        )
+
+        choice = resp.choices[0]
+        content = choice.message.content
+        if isinstance(content, list):
+            return "".join(part.get("text", "") for part in content)
+        return str(content)
+
+class TogetherLlamaClient(LLMClient):
+    def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
+        super().__init__(model, max_tokens, temperature)
+        self.name = "Llama (Together)"
+        self.api = Together(api_key=key) if key else Together()
+
+    def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
+        messages: list[dict] = []
+
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        for user_msg, assistant_msg in history:
+            messages.append({"role": "user", "content": user_msg})
+            messages.append({"role": "assistant", "content": assistant_msg})
+
+        messages.append({"role": "user", "content": user_prompt})
+
+        completion = self.api.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+        )
+        return completion.choices[0].message.content
+
+class TogetherQwenClient(LLMClient):
+    def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
+        super().__init__(model, max_tokens, temperature)
+        self.name = "Qwen (Together)"
+        self.api = Together(api_key=key) if key else Together()
+
+    def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
+        messages: list[dict] = []
+
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        for user_msg, assistant_msg in history:
+            messages.append({"role": "user", "content": user_msg})
+            messages.append({"role": "assistant", "content": assistant_msg})
+
+        messages.append({"role": "user", "content": user_prompt})
+
+        completion = self.api.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+        )
+        return completion.choices[0].message.content

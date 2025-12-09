@@ -31,7 +31,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 extensions.init_extensions(
     claude_model       = os.getenv("CLAUDE_MODEL", "claude-3-haiku-20240307"),
     claude_key         = os.getenv("CLAUDE_API_KEY"),
-    claude_max_tokens  = int(os.getenv("CLAUDE_MAX_TOKENS", "500")),
+    claude_max_tokens  = int(os.getenv("CLAUDE_MAX_TOKENS", "120")),
     claude_temperature = float(os.getenv("CLAUDE_TEMPERATURE", "0.2")),
 
     deepseek_model      = os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
@@ -54,7 +54,22 @@ extensions.init_extensions(
     grok_max_tokens    = int(os.getenv("GROK_MAX_TOKENS", "120")),
     grok_temperature   = float(os.getenv("GROK_TEMPERATURE", "0.2")),
 
-    pepper=pepper_key, 
+    mistral_model      = os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
+    mistral_key        = os.getenv("MISTRAL_API_KEY"),
+    mistral_max_tokens = int(os.getenv("MISTRAL_MAX_TOKENS", "120")),
+    mistral_temperature= float(os.getenv("MISTRAL_TEMPERATURE", "0.2")),
+
+    llama_model        = os.getenv("LLAMA_MODEL", "meta-llama/Llama-3.3-70B-Instruct-Turbo"),
+    llama_key          = os.getenv("LLAMA_API_KEY"),
+    llama_max_tokens   = int(os.getenv("LLAMA_MAX_TOKENS", "120")),
+    llama_temperature  = float(os.getenv("LLAMA_TEMPERATURE", "0.2")),
+
+    qwen_model         = os.getenv("QWEN_MODEL", "Qwen/Qwen2.5-7B-Instruct-Turbo"),
+    qwen_key           = os.getenv("QWEN_API_KEY"),
+    qwen_max_tokens    = int(os.getenv("QWEN_MAX_TOKENS", "120")),
+    qwen_temperature   = float(os.getenv("QWEN_TEMPERATURE", "0.2")),
+
+    pepper=pepper_key,
     flask_app=app)
 
 # Prepare and connect the LoginManager to this app
@@ -99,16 +114,6 @@ def gemini():
 def claude():
     return ai_endpoints.claude()
 
-@app.post('/api/falcon')
-@login_required
-def bard():
-    return ai_endpoints.falcon()
-
-@app.post('/api/bert')
-@login_required
-def llama():
-    return ai_endpoints.bert()
-
 @app.post('/api/mistral')
 @login_required
 def mistral():
@@ -123,6 +128,16 @@ def grok():
 @login_required
 def deepseek():
     return ai_endpoints.deepseek()
+
+@app.post('/api/llama')
+@login_required
+def llama_together():
+    return ai_endpoints.llama_together()
+
+@app.post('/api/qwen')
+@login_required
+def qwen_together():
+    return ai_endpoints.qwen_together()
 
 @app.get('/register/')
 def get_register():

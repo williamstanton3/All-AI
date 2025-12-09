@@ -88,6 +88,6 @@ def gemini()   -> Response: return single_llm_endpoint(extensions.gemini_client)
 def claude()   -> Response: return single_llm_endpoint(extensions.claude_client)
 def grok()     -> Response: return single_llm_endpoint(extensions.grok_client)
 def deepseek() -> Response: return single_llm_endpoint(extensions.deepseek_client)
-def falcon()   -> Response: return jsonify({"reply": "This is a Falcon response."}), 200
-def mistral()  -> Response: return jsonify({"reply": "This is a Mistral response."}), 200
-def bert()     -> Response: return jsonify({"reply": "This is a BERT response."}), 200
+def mistral()  -> Response: return single_llm_endpoint(extensions.mistral_client)
+def llama_together() -> Response: return single_llm_endpoint(extensions.llama_client)
+def qwen_together() -> Response: return single_llm_endpoint(extensions.qwen_client)

@@ -285,13 +285,13 @@ body.sidebar-collapsed #historySidebar {
 }
 
 .user-bubble {
-    background: #1f2937;
-    color: #fff;
+    background: #555555;
+    color: #ffffff;
     padding: 8px 12px;
     border-radius: 8px;
-    margin: 8px 0;
+    margin: 8px 0 14px 0;
     max-width: 80%;
-    align-self: flex-end;
+    align-self: flex-start;
     white-space: pre-wrap;
     font-family: inherit;
     font-size: 0.95rem;
@@ -362,9 +362,8 @@ body.sidebar-collapsed #historySidebar {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Markdown Content Styling --- */
 .model-response {
-    margin: 6px 0;
+    margin: 6px 0 16px 0;
     line-height: 1.5;
     color: #e0e0e0;
     font-family: inherit;

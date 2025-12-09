@@ -5,8 +5,8 @@ const MODEL_ENDPOINTS: Record<string, string> = {
     GROK: "/api/grok",
     DEEPSEEK: "/api/deepseek",
     MISTRAL: "/api/mistral",
-    BERT: "/api/bert",
-    FALCON: "/api/falcon"
+    LLAMA: "/api/llama",
+    QWEN: "/api/qwen"
 };
 
 // Declare 'marked' because it is loaded via CDN in home.html

@@ -14,8 +14,8 @@ const MODEL_ENDPOINTS = {
     GROK: "/api/grok",
     DEEPSEEK: "/api/deepseek",
     MISTRAL: "/api/mistral",
-    BERT: "/api/bert",
-    FALCON: "/api/falcon"
+    LLAMA: "/api/llama",
+    QWEN: "/api/qwen"
 };
 export function fetchLLMResponse(model, prompt) {
     return __awaiter(this, void 0, void 0, function* () {
