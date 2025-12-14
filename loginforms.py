@@ -12,7 +12,7 @@ class RegisterForm(FlaskForm):
         InputRequired(),
         EqualTo('password', message="Passwords don't match")
     ])
-    status= BooleanField("Premium Account?")
+
     submit = SubmitField("Register")
 
 class LoginForm(FlaskForm):

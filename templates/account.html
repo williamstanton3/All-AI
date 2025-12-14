@@ -18,6 +18,15 @@
                 <span class="info-label">Account Status:</span>
                 <span id="account-status" class="info-value">{{ current_user.status }}</span>
             </div>
+            {% if current_user.status == 'Free' %}
+        <div class="info-row" style="margin-top: 20px;">
+            <form action="{{ url_for('upgrade_account') }}" method="POST">
+                <button type="submit" class="upgrade-btn" style="padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+                    Switch to Premium Account
+                </button>
+            </form>
+        </div>
+        {% endif %}
         </div>
     </div>
 

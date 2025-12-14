@@ -150,10 +150,7 @@ def post_register():
     if form.validate():
         user: User|None = get_user(email=form.email.data)
         if user is None:
-            statusBox = "Free"
-            if form.status.data:
-                statusBox = "Premium"
-            user = User(email=form.email.data, password=form.password.data, status=statusBox) # type: ignore
+            user = User(email=form.email.data, password=form.password.data, status="Free") # type: ignore
             extensions.db.session.add(user)
             extensions.db.session.commit()
             return redirect(url_for('home'))
@@ -194,6 +191,18 @@ def post_login():
 @login_required
 def account():
     return render_template('account.html', current_user=current_user)
+
+@app.post('/account/upgrade')
+@login_required
+def upgrade_account():
+    # Update the user's status
+    current_user.status = "Premium"
+    extensions.db.session.commit()
+    
+    # Optional: Add a flash message
+    flash("Successfully upgraded to Premium!")
+    
+    return redirect(url_for('account'))
 
 @app.get('/home')
 @login_required
