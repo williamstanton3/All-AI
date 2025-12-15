@@ -355,6 +355,7 @@ async function loadThreadHistory(threadId: number) {
                 
                 // Make the AI response bubble
                 const responseDiv = document.createElement("div");
+                responseDiv.className = "model-response";
                  // @ts-ignore (reads marked library so html elements are rendered properly)
                 responseDiv.innerHTML = marked.parse(item.model_response);
                 out.appendChild(responseDiv);
