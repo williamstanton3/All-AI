@@ -14,10 +14,17 @@
     <button id="newChat">New Chat</button>
 
     <div id="threadList">
-        {% for thread in threads %}
+       {% for thread in threads %}
         <div class="chat-thread" data-thread-id="{{ thread.id }}">
-            <span class="thread-title">{{ thread.thread_name }}</span>
-            <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
+            <div class="thread-header">
+                <span class="thread-title">{{ thread.thread_name }}</span>
+                <span class="delete-thread-btn" title="Delete Chat">×</span>
+            </div>
+            
+            <div class="thread-details">
+                <span class="thread-models">{{ thread.display_models }}</span>
+                <span class="thread-date">{{ thread.date_created.strftime('%b %d %I:%M') }}</span>
+            </div>
         </div>
         {% endfor %}
     </div>

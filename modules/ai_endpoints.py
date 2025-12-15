@@ -76,7 +76,7 @@ def single_llm_endpoint(client: LLMClient | None) -> Response:
             user_prompt=prompt,
             history=_get_history_context(2),
         )
-        _save_history(current_thread.id, prompt, client.model, reply)
+        _save_history(current_thread.id, prompt, client.name, reply)
         return jsonify({"reply": reply}), 200
     except Exception as e:
         current_app.logger.exception("%s request failed", client.name)

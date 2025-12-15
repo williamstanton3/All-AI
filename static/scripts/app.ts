@@ -28,17 +28,46 @@ sidebarToggle.addEventListener("click", () => {
     }
 });
 
-// Close mobile sidebar when clicking overlay
-mobileOverlay.addEventListener("click", () => {
-    document.body.classList.remove("sidebar-mobile-open");
-});
+function addThreadToSidebar(id: number, name: string, date: string, models: string) {
+    const threadList = document.getElementById("threadList");
+    if (!threadList) return;
 
-document.querySelectorAll(".chat-thread").forEach(thread => {
-    thread.addEventListener("click", () => {
+    const div = document.createElement("div");
+    div.className = "chat-thread";
+    div.setAttribute("data-thread-id", id.toString());
+    
+    div.innerHTML = `
+        <div class="thread-header">
+            <span class="thread-title">${name}</span>
+            <span class="delete-thread-btn" title="Delete Chat">×</span>
+        </div>
+        <div class="thread-details">
+            <span class="thread-models">${models}</span>
+            <span class="thread-date">${date}</span>
+        </div>
+    `;
+
+    div.addEventListener("click", () => {
         if (window.innerWidth <= 768) {
             document.body.classList.remove("sidebar-mobile-open");
         }
+        loadThreadHistory(id);
     });
+
+    const deleteBtn = div.querySelector(".delete-thread-btn");
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Stop the click from opening the chat
+            deleteThread(id, div);
+        });
+    }
+
+    threadList.prepend(div);
+}
+
+// Close mobile sidebar when clicking overlay
+mobileOverlay.addEventListener("click", () => {
+    document.body.classList.remove("sidebar-mobile-open");
 });
 
 function getMaxModels(): number {
@@ -87,7 +116,7 @@ function getAllPresentModels(): string[] {
     return Array.from(models);
 }
 
-submitPromptBtn.addEventListener("click", () => {
+submitPromptBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
     if (!prompt) return;
 
@@ -95,6 +124,26 @@ submitPromptBtn.addEventListener("click", () => {
     if (presentModels.length === 0) {
         showPromptAlert("Please select at least one LLM model");
         return;
+    }
+    //ensure the thread exists
+    try {
+        const response = await fetch('/api/ensure_thread', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                prompt: prompt,
+                models: presentModels 
+            })
+        });
+
+        const data = await response.json();
+        
+        // Only update sidebar if the server says it created a NEW thread
+        if (data.status === "created") {
+           addThreadToSidebar(data.id, data.name, data.date, data.models);
+        }
+    } catch (err) {
+        console.error("Failed to establish thread:", err);
     }
 
     presentModels.forEach(model => {
@@ -233,3 +282,104 @@ modelDropdown.querySelectorAll<HTMLDivElement>(".dropdown-item").forEach(item =>
         modelDropdown.style.display = "none";
     });
 });
+
+// New Chat Button
+const newChatBtn = document.getElementById("newChat");
+if (newChatBtn) {
+    newChatBtn.addEventListener("click", async () => {
+        try {
+            // starts a new session
+            await fetch('/api/new_thread', { method: 'POST' });
+
+            // Clear the UI and resets to default
+            document.querySelectorAll(".llm-column").forEach(col => col.remove());
+            defaultLLMs.forEach(createLLMColumn);
+        } catch (err) {
+            console.error("Error creating new thread:", err);
+        }
+    });
+}
+
+// Loads chat history
+document.querySelectorAll(".chat-thread").forEach(thread => {
+
+    thread.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            document.body.classList.remove("sidebar-mobile-open");
+        }
+        const threadId = thread.getAttribute("data-thread-id");
+        if (threadId) loadThreadHistory(parseInt(threadId));
+    });
+
+    const deleteBtn = thread.querySelector(".delete-thread-btn");
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const threadId = thread.getAttribute("data-thread-id");
+            if (threadId) deleteThread(parseInt(threadId), thread as HTMLElement);
+        });
+    }
+});
+// Loads the chat history given the threadID
+async function loadThreadHistory(threadId: number) {
+    try {
+        const response = await fetch(`/api/thread/${threadId}`);
+        if (!response.ok) throw new Error("Failed to fetch history");
+        
+        const data = await response.json();
+        const history = data.history; // Array of {user_input, model_name, model_response, date_saved}
+
+        // Clears the current existing columns
+        document.querySelectorAll(".llm-column").forEach(col => col.remove());
+
+        // Find which models in the chat thread history and load them into new columns
+        const uniqueModels = new Set<string>();
+        history.forEach((h: any) => uniqueModels.add(h.model_name));
+        uniqueModels.forEach(model => createLLMColumn(model));
+
+        // Iterate through history and fill in the chat bubbles
+        history.forEach((item: any) => {
+            const columns = getColumnsFor(item.model_name); //finds the column for the specific model
+            columns.forEach(col => {
+                const out = col.querySelector(".llm-output");
+                if (!out) return;
+                //removes the "Waiting for prompt" placeholder
+                const placeholder = out.querySelector(".placeholder");
+                if (placeholder) placeholder.remove();
+
+                // Makes the user Bubble
+                const userBubble = document.createElement("div");
+                userBubble.className = "user-bubble";
+                userBubble.textContent = item.user_input;
+                out.appendChild(userBubble);
+                
+                // Make the AI response bubble
+                const responseDiv = document.createElement("div");
+                 // @ts-ignore (reads marked library so html elements are rendered properly)
+                responseDiv.innerHTML = marked.parse(item.model_response);
+                out.appendChild(responseDiv);
+            });
+        });
+
+    } catch (error) {
+        console.error("Error loading history:", error);
+        showPromptAlert("Could not load chat history.");
+    }
+}
+
+async function deleteThread(threadId: number, element: HTMLElement) {
+    if (!confirm("Are you sure you want to delete this chat permanently?")) return;
+
+    try {
+        const response = await fetch(`/api/thread/${threadId}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            element.remove();
+        } else {
+            alert("Failed to delete thread.");
+        }
+    } catch (err) {
+        console.error("Error deleting thread:", err);
+    }
+}

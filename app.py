@@ -139,6 +139,47 @@ def llama_together():
 def qwen_together():
     return ai_endpoints.qwen_together()
 
+@app.post('/api/ensure_thread')
+@login_required
+def ensure_thread():
+    # make a new thread if there isn't currently one
+    data = request.get_json()
+    prompt = data.get('prompt', 'New Chat')
+    current_models = set(data.get('models', []))
+    if 'current_thread_id' in session:
+        thread_id = session['current_thread_id']
+        
+        history_models = extensions.db.session.query(ChatHistory.model_name).filter_by(thread_id=thread_id).distinct().all()
+        
+        existing_models = {row[0] for row in history_models}
+        if existing_models and existing_models != current_models:
+            session.pop('current_thread_id', None)
+        else:
+            return jsonify({"status": "exists", "id": thread_id})
+        
+    
+    # thread title
+    thread_name = prompt[:15] + "..." if len(prompt) > 15 else prompt
+
+    new_thread = ChatThread(
+        user_id=current_user.id, #type:ignore
+        thread_name=thread_name, #type:ignore
+        date_created=datetime.now() #type:ignore
+    )
+    extensions.db.session.add(new_thread)
+    extensions.db.session.commit()
+    session['current_thread_id'] = new_thread.id
+    
+    
+    return jsonify({
+        "status": "created", 
+        "id": new_thread.id,
+        "name": new_thread.thread_name,
+        "date": new_thread.date_created.strftime('%b %d %I:%M'),
+        "models": ", ".join(sorted(current_models))
+    })
+
+
 @app.get('/register/')
 def get_register():
     form = RegisterForm()
@@ -217,6 +258,16 @@ def home():
         .order_by(ChatThread.date_created.desc())
         .all()
     )
+    for thread in current_threads:
+
+        models = extensions.db.session.query(ChatHistory.model_name)\
+            .filter_by(thread_id=thread.id)\
+            .distinct().all()
+        
+        # Convert list of rows [('CHATGPT',), ('GEMINI',)] -> "CHATGPT, GEMINI"
+        valid_models = [m[0] for m in models if m[0]] # Filter out None
+        thread.display_models = ", ".join(sorted(valid_models))
+        
     return render_template('home.html', current_user=current_user, threads=current_threads)
 
 @app.get('/')
@@ -250,3 +301,21 @@ def switch_thread(thread_id: int):
     ]
 
     return jsonify({"history": history})
+
+
+@app.delete('/api/thread/<int:thread_id>')
+@login_required
+def delete_thread(thread_id):
+    thread = extensions.db.session.query(ChatThread).filter_by(id=thread_id, user_id=current_user.id).first()
+    
+    if not thread:
+        return jsonify({"error": "Thread not found or access denied"}), 403
+
+    extensions.db.session.query(ChatHistory).filter_by(thread_id=thread_id).delete()
+    extensions.db.session.delete(thread)
+    extensions.db.session.commit()
+    
+    if session.get('current_thread_id') == thread_id:
+        session.pop('current_thread_id', None)
+
+    return jsonify({"status": "deleted"})

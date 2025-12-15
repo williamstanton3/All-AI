@@ -32,7 +32,7 @@ body {
 
 /* --- Sidebar Styles --- */
 #historySidebar {
-    width: 250px;
+    width: 350px;
     background-color: #333;
     color: white;
     padding: 15px;
@@ -66,9 +66,12 @@ body.sidebar-collapsed #historySidebar {
     flex-shrink: 0;
     border-radius: 13px;
     background-color: #444;
-    padding: 10px;
+    padding: 15px;
+    min-height: 85px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center; 
+    gap: 8px;
 }
 
 .chat-thread:hover {
@@ -94,6 +97,52 @@ body.sidebar-collapsed #historySidebar {
     display: flex;
     justify-content: center;
     box-sizing: border-box;
+}
+.thread-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.thread-title {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 85%;
+}
+.delete-thread-btn {
+    color: #888;
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+}
+.delete-thread-btn:hover {
+    color: #ff4d4d;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.thread-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #aaa;
+}
+.thread-models {
+    max-width: 65%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: italic;
+    color: #888;
+}
+.thread-date {
+    font-size: 0.7rem;
+    opacity: 0.8;
 }
 
 /* --- Main Container --- */
@@ -507,7 +556,7 @@ body {
     }
 
     .prompt-input-container {
-        padding: 0.75rem 1rem 1.5rem 1rem;
+        padding: 0.75rem 1rem 5rem 1rem; 
         flex-direction: column;
     }
 

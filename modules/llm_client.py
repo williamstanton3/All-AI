@@ -29,7 +29,7 @@ class LLMClient(ABC):
 class GeminiClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Gemini"
+        self.name = "GEMINI"
         self.api = genai.Client(api_key=key) if key else None
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -55,7 +55,7 @@ class GeminiClient(LLMClient):
 class GPTClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "ChatGPT"
+        self.name = "CHATGPT"
         self.api = openai.OpenAI(api_key=key) if key else None
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -77,7 +77,7 @@ class GPTClient(LLMClient):
 class ClaudeClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Claude"
+        self.name = "CLAUDE"
         self.api = anthropic.Anthropic(api_key=key) if key else None
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -100,7 +100,7 @@ class ClaudeClient(LLMClient):
 class GrokClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Grok"
+        self.name = "GROK"
         self.api = xai_sdk.Client(api_key=key) if key else None
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -122,7 +122,7 @@ class GrokClient(LLMClient):
 class DeepseekClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Deepseek"
+        self.name = "DEEPSEEK"
         self.api = openai.OpenAI(
             api_key=key,
             base_url="https://api.deepseek.com",
@@ -148,7 +148,7 @@ class DeepseekClient(LLMClient):
 class MistralClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Mistral"
+        self.name = "MISTRAL"
         self.api = Mistral(api_key=key) if key else None
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -178,7 +178,7 @@ class MistralClient(LLMClient):
 class TogetherLlamaClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Llama (Together)"
+        self.name = "LLAMA"
         self.api = Together(api_key=key) if key else Together()
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
@@ -204,7 +204,7 @@ class TogetherLlamaClient(LLMClient):
 class TogetherQwenClient(LLMClient):
     def __init__(self, model: str, max_tokens: int, temperature: float, key: str | None):
         super().__init__(model, max_tokens, temperature)
-        self.name = "Qwen (Together)"
+        self.name = "QWEN"
         self.api = Together(api_key=key) if key else Together()
 
     def get_reply(self, system_prompt: str, user_prompt: str, history: list[tuple[str, str]]):
