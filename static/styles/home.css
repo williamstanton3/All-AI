@@ -488,6 +488,17 @@ body {
         overflow-x: hidden;
     }
 
+    .account-link-container {
+        position: fixed;
+        top: 10px;
+        right: 12px;
+        left: auto;
+        bottom: auto;
+        transform: none;
+        gap: 10px;
+        font-size: 14px;
+    }
+
     #historySidebar {
         position: fixed;
         top: 0;
@@ -574,12 +585,6 @@ body {
     .prompt-alert {
         margin: 0 1rem 0.4rem;
         font-size: 0.8rem;
-    }
-
-    .account-link-container {
-        bottom: 10px;
-        gap: 10px;
-        font-size: 14px;
     }
 }
 
