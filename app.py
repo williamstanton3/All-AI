@@ -194,6 +194,11 @@ def post_register():
             user = User(email=form.email.data, password=form.password.data, status="Free") # type: ignore
             extensions.db.session.add(user)
             extensions.db.session.commit()
+
+            # login the user
+            login_user(user)
+
+
             return redirect(url_for('home'))
         else:
             flash('There is already an account with that email address')
