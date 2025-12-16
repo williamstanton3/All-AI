@@ -198,7 +198,6 @@ def post_register():
             # login the user
             login_user(user)
 
-
             return redirect(url_for('home'))
         else:
             flash('There is already an account with that email address')
