@@ -232,6 +232,18 @@ def post_login():
             flash(f"{field}: {error}")
         return redirect(url_for('get_login'))
 
+@app.get('/logout/')
+@login_required
+def logout():
+    session.pop('current_thread_id', None)
+
+    # Log the user out
+    logout_user()
+
+    flash("You have been logged out.")
+
+    return redirect(url_for('get_login'))
+
 @app.get('/account')
 @login_required
 def account():
